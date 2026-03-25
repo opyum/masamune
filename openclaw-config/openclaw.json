@@ -1,0 +1,35 @@
+{
+  "server": {
+    "port": 3002,
+    "host": "0.0.0.0"
+  },
+  "webhook": {
+    "url": "http://app:3000/api/openclaw/incoming",
+    "secret": "${OPENCLAW_WEBHOOK_SECRET}"
+  },
+  "channels": {
+    "whatsapp": {
+      "enabled": true,
+      "provider": "twilio",
+      "accountSid": "${TWILIO_ACCOUNT_SID}",
+      "authToken": "${TWILIO_AUTH_TOKEN}",
+      "phoneNumber": "${TWILIO_WHATSAPP_NUMBER}"
+    },
+    "telegram": {
+      "enabled": true,
+      "botToken": "${TELEGRAM_BOT_TOKEN}"
+    },
+    "discord": {
+      "enabled": false,
+      "botToken": "${DISCORD_BOT_TOKEN}"
+    }
+  },
+  "routing": {
+    "defaultHandler": "webhook",
+    "messageFormat": "json"
+  },
+  "rateLimit": {
+    "maxMessagesPerMinute": 30,
+    "maxMessagesPerHour": 200
+  }
+}
