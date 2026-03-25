@@ -2,6 +2,8 @@ import { Worker } from "bullmq";
 import IORedis from "ioredis";
 import { handleGenerateSite } from "./jobs/generate-site";
 import { handleRebuildSite } from "./jobs/rebuild-site";
+import { handlePurchaseDomain } from "./jobs/purchase-domain";
+import { handleConfigureDNS } from "./jobs/configure-dns";
 
 const connection = new IORedis({
   host: process.env.REDIS_HOST || "redis",
@@ -23,12 +25,10 @@ const worker = new Worker(
         await handleRebuildSite(job.data);
         break;
       case "purchase-domain":
-        // TODO: Plan 5
-        console.log("Domain purchase not yet implemented");
+        await handlePurchaseDomain(job.data);
         break;
       case "configure-dns":
-        // TODO: Plan 5
-        console.log("DNS configuration not yet implemented");
+        await handleConfigureDNS(job.data);
         break;
       case "submit-seo":
         // TODO: Plan 7
