@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  free
+  pro
+  business
+  enterprise
+}
+
+enum SiteStatus {
+  drafting
+  generating
+  live
+  partial
+  error
+}
+
+enum JobType {
+  generate
+  rebuild
+  domain_purchase
+  dns_config
+  seo_submit
+}
+
+enum JobStatus {
+  queued
+  processing
+  completed
+  failed
+}
+
+enum DomainStatus {
+  searching
+  purchased
+  dns_configured
+  ssl_active
+  error
+}
+
+enum SubscriptionStatus {
+  active
+  cancelled
+  past_due
+}
+
+enum AssetType {
+  image
+  video
+  logo
+}
+
+enum MessageRole {
+  user
+  assistant
+  system
+}
+
+enum Channel {
+  whatsapp
+  telegram
+  discord
+}
+
+model User {
+  id               String         @id @default(uuid()) @db.Uuid
+  email            String         @unique
+  plan             Plan           @default(free)
+  stripeCustomerId String?        @map("stripe_customer_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  sites            Site[]
+  subscriptions    Subscription[]
+  domains          Domain[]
+  channelLinks     ChannelLink[]
+
+  @@map("users")
+}
+
+model Site {
+  id              String     @id @default(uuid()) @db.Uuid
+  userId          String     @map("user_id") @db.Uuid
+  slug            String     @unique
+  customDomain    String?    @map("custom_domain")
+  businessName    String     @map("business_name")
+  businessType    String     @map("business_type")
+  briefJson       Json?      @map("brief_json")
+  status          SiteStatus @default(drafting)
+  errorMessage    String?    @map("error_message")
+  codeStoragePath String?    @map("code_storage_path")
+  currentVersion  Int        @default(1) @map("current_version")
+  seoConfig       Json?      @map("seo_config")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assets        SiteAsset[]
+  conversations Conversation[]
+  versions      SiteVersion[]
+  domains       Domain[]
+  jobs          Job[]
+
+  @@map("sites")
+}
+
+model SiteVersion {
+  id               String   @id @default(uuid()) @db.Uuid
+  siteId           String   @map("site_id") @db.Uuid
+  versionNumber    Int      @map("version_number")
+  codeStoragePath  String   @map("code_storage_path")
+  briefJsonSnapshot Json?   @map("brief_json_snapshot")
+  changeDescription String? @map("change_description")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, versionNumber])
+  @@map("site_versions")
+}
+
+model SiteAsset {
+  id           String    @id @default(uuid()) @db.Uuid
+  siteId       String    @map("site_id") @db.Uuid
+  type         AssetType
+  originalUrl  String    @map("original_url")
+  optimizedUrl String?   @map("optimized_url")
+  altText      String?   @map("alt_text")
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("site_assets")
+}
+
+model Conversation {
+  id             String   @id @default(uuid()) @db.Uuid
+  siteId         String   @map("site_id") @db.Uuid
+  briefExtracted Boolean  @default(false) @map("brief_extracted")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  site     Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String      @id @default(uuid()) @db.Uuid
+  conversationId String      @map("conversation_id") @db.Uuid
+  role           MessageRole
+  content        String
+  attachments    Json?
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model Domain {
+  id              String       @id @default(uuid()) @db.Uuid
+  userId          String       @map("user_id") @db.Uuid
+  siteId          String       @map("site_id") @db.Uuid
+  domainName      String       @map("domain_name")
+  registrar       String       @default("ovh")
+  status          DomainStatus @default(searching)
+  expiresAt       DateTime?    @map("expires_at")
+  stripePaymentId String?      @map("stripe_payment_id")
+  ovhOrderId      String?      @map("ovh_order_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("domains")
+}
+
+model Job {
+  id          String    @id @default(uuid()) @db.Uuid
+  siteId      String    @map("site_id") @db.Uuid
+  type        JobType
+  status      JobStatus @default(queued)
+  payload     Json?
+  result      Json?
+  error       String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("jobs")
+}
+
+model Subscription {
+  id                   String             @id @default(uuid()) @db.Uuid
+  userId               String             @map("user_id") @db.Uuid
+  stripeSubscriptionId String             @map("stripe_subscription_id")
+  plan                 Plan
+  status               SubscriptionStatus @default(active)
+  currentPeriodEnd     DateTime           @map("current_period_end")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model ChannelLink {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  channel   Channel
+  senderId  String   @map("sender_id")
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("channel_links")
+}
