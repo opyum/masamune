@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma";
 import { configureDNS } from "../lib/ovh";
 import { generateNginxConfig } from "../lib/nginx";
+import { notifyDomainStatus } from "../lib/notifications";
 import { exec } from "child_process";
 import { promisify } from "util";
 
@@ -57,10 +58,11 @@ export async function handleConfigureDNS(data: {
       });
 
       console.log(`[configure-dns] SSL certificate obtained for ${domainName}`);
+      await notifyDomainStatus(site.userId, domainName, "ssl_active");
     } catch (sslError: any) {
       console.warn(`[configure-dns] SSL failed (DNS may not have propagated yet): ${sslError.message}`);
       // DNS is configured but SSL will need to be retried
-      // Domain stays in dns_configured status
+      await notifyDomainStatus(site.userId, domainName, "dns_configured");
     }
 
     console.log(`[configure-dns] DNS configuration complete for ${domainName}`);

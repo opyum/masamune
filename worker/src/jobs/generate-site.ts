@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import { callSonnet } from "../lib/anthropic";
 import { SONNET_GENERATION_SYSTEM_PROMPT, buildGenerationUserPrompt } from "../prompts/generation";
 import { parseGeneratedFiles, validateGeneratedFiles } from "../lib/parser";
+import { notifySiteLive } from "../lib/notifications";
 import { Queue } from "bullmq";
 import IORedis from "ioredis";
 
@@ -94,7 +95,11 @@ export async function handleGenerateSite(data: {
       },
     });
 
-    // 9. Enqueue SEO submission
+    // 9. Notify user
+    const domain = site.customDomain || `${site.slug}.masamune.app`;
+    await notifySiteLive(site.userId, site.businessName, `https://${domain}`);
+
+    // 10. Enqueue SEO submission
     await jobQueue.add("submit-seo", { siteId }, {
       delay: 5000, // Wait 5s for files to settle
     });
