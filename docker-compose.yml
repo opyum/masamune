@@ -1,0 +1,12 @@
+services:
+
+volumes:
+  postgres_data:
+  redis_data:
+  storage_data:
+  certbot_conf:
+  certbot_www:
+
+networks:
+  masamune:
+    driver: bridge
