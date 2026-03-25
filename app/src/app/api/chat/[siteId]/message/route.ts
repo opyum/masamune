@@ -103,7 +103,7 @@ export async function POST(
         await prisma.site.update({
           where: { id: siteId },
           data: {
-            briefJson: briefJson as any,
+            briefJson: briefJson as object,
             status: "generating",
           },
         });

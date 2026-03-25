@@ -109,8 +109,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ handled: true, action: "chat_response" });
 
-  } catch (error: any) {
-    console.error("[openclaw-incoming] Error routing message:", error.message);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    console.error("[openclaw-incoming] Error routing message:", msg);
     await sendOpenClawMessage(channel, senderId,
       "Desole, une erreur est survenue. Reessayez dans quelques instants."
     );
@@ -132,7 +133,8 @@ async function sendOpenClawMessage(
       },
       body: JSON.stringify({ channel, recipientId, message }),
     });
-  } catch (error: any) {
-    console.error(`[openclaw] Failed to send message:`, error.message);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    console.error(`[openclaw] Failed to send message:`, msg);
   }
 }

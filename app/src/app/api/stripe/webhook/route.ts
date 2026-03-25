@@ -89,7 +89,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         stripeSubscriptionId: subscriptionId,
         plan,
         status: "active",
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        currentPeriodEnd: new Date(((subscription as unknown as Record<string, number>).current_period_end ?? Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60) * 1000),
       },
     }),
     prisma.user.update({
@@ -118,7 +118,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       data: {
         plan: plan || dbSubscription.plan,
         status: subscription.status === "active" ? "active" : "past_due",
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        currentPeriodEnd: new Date(((subscription as unknown as Record<string, number>).current_period_end ?? Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60) * 1000),
       },
     }),
     ...(plan
@@ -151,7 +151,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
+  const subscriptionId = (invoice as unknown as Record<string, unknown>).subscription as string;
   if (!subscriptionId) return;
 
   await prisma.subscription.updateMany({

@@ -6,11 +6,7 @@ import crypto from "crypto";
 const OPENCLAW_URL = process.env.OPENCLAW_URL || "http://openclaw:3002";
 const OPENCLAW_WEBHOOK_SECRET = process.env.OPENCLAW_WEBHOOK_SECRET || "";
 
-// Store pending verification codes in memory (short-lived)
-// In production, use Redis for distributed storage
-const pendingCodes = new Map<string, { userId: string; channel: string; senderId: string; expiresAt: number }>();
-
-export { pendingCodes };
+import { pendingCodes } from "@/lib/verification-codes";
 
 export async function POST(request: NextRequest) {
   const { user, error } = await getAuthenticatedUser();
@@ -84,8 +80,9 @@ export async function POST(request: NextRequest) {
         message: `Votre code de verification Masamune : ${code}\n\nCe code expire dans 10 minutes.`,
       }),
     });
-  } catch (err: any) {
-    console.error("[channel-link] Failed to send verification code:", err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[channel-link] Failed to send verification code:", message);
     return NextResponse.json(
       { error: "Impossible d'envoyer le code. Verifiez votre identifiant." },
       { status: 500 }

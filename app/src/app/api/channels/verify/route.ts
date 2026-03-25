@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth";
-import { pendingCodes } from "../link/route";
+import { pendingCodes } from "@/lib/verification-codes";
 
 export async function POST(request: NextRequest) {
   const { user, error } = await getAuthenticatedUser();
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     await prisma.channelLink.create({
       data: {
         userId: user!.id,
-        channel: channel as any,
+        channel: channel as "whatsapp" | "telegram" | "discord",
         senderId,
         verified: true,
       },
