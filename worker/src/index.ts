@@ -4,6 +4,7 @@ import { handleGenerateSite } from "./jobs/generate-site";
 import { handleRebuildSite } from "./jobs/rebuild-site";
 import { handlePurchaseDomain } from "./jobs/purchase-domain";
 import { handleConfigureDNS } from "./jobs/configure-dns";
+import { handleSubmitSeo } from "./jobs/submit-seo";
 
 const connection = new IORedis({
   host: process.env.REDIS_HOST || "redis",
@@ -31,8 +32,7 @@ const worker = new Worker(
         await handleConfigureDNS(job.data);
         break;
       case "submit-seo":
-        // TODO: Plan 7
-        console.log("SEO submission not yet implemented");
+        await handleSubmitSeo(job.data);
         break;
       default:
         console.log(`Unknown job type: ${job.name}`);
