@@ -78,6 +78,61 @@ services:
       timeout: 5s
       retries: 5
 
+  supabase-rest:
+    image: postgrest/postgrest:v12.0.1
+    container_name: masamune-rest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgres://${POSTGRES_USER:-masamune}:${POSTGRES_PASSWORD}@postgres:5432/masamune
+      PGRST_DB_SCHEMAS: public,storage,auth
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+    networks:
+      - masamune
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  supabase-storage:
+    image: supabase/storage-api:v1.0.6
+    container_name: masamune-storage
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      supabase-auth:
+        condition: service_healthy
+      supabase-rest:
+        condition: service_healthy
+    environment:
+      ANON_KEY: ${SUPABASE_ANON_KEY}
+      SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      POSTGREST_URL: http://supabase-rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://${POSTGRES_USER:-masamune}:${POSTGRES_PASSWORD}@postgres:5432/masamune
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: eu-west-1
+      GLOBAL_S3_BUCKET: stub
+      IS_MULTITENANT: "false"
+    volumes:
+      - storage_data:/var/lib/storage
+    networks:
+      - masamune
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_data:
   redis_data:
