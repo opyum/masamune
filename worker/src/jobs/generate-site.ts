@@ -4,8 +4,18 @@ import { prisma } from "../lib/prisma";
 import { callSonnet } from "../lib/anthropic";
 import { SONNET_GENERATION_SYSTEM_PROMPT, buildGenerationUserPrompt } from "../prompts/generation";
 import { parseGeneratedFiles, validateGeneratedFiles } from "../lib/parser";
+import { Queue } from "bullmq";
+import IORedis from "ioredis";
 
 const SITES_DIR = process.env.SITES_DIR || "/var/www/sites-clients";
+
+const redisConnection = new IORedis({
+  host: process.env.REDIS_HOST || "redis",
+  port: parseInt(process.env.REDIS_PORT || "6379"),
+  password: process.env.REDIS_PASSWORD,
+  maxRetriesPerRequest: null,
+});
+const jobQueue = new Queue("masamune-jobs", { connection: redisConnection });
 
 export async function handleGenerateSite(data: {
   siteId: string;
@@ -84,7 +94,13 @@ export async function handleGenerateSite(data: {
       },
     });
 
-    // 9. Update job
+    // 9. Enqueue SEO submission
+    await jobQueue.add("submit-seo", { siteId }, {
+      delay: 5000, // Wait 5s for files to settle
+    });
+    console.log(`[generate-site] SEO submission enqueued for site ${siteId}`);
+
+    // 10. Update job
     if (job) {
       await prisma.job.update({
         where: { id: job.id },
