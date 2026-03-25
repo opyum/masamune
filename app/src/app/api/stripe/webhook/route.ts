@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
+import { addJob } from "@/lib/queue";
 import { Plan } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
@@ -42,8 +43,35 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const userId = session.metadata?.userId;
-  const plan = session.metadata?.plan as Plan | undefined;
+  const metadata = session.metadata;
+
+  // Handle domain purchase
+  if (metadata?.type === "domain_purchase") {
+    const { domainName, siteId, userId } = metadata;
+    if (domainName && siteId && userId) {
+      const domain = await prisma.domain.create({
+        data: {
+          userId,
+          siteId,
+          domainName,
+          registrar: "ovh",
+          status: "searching",
+          stripePaymentId: session.payment_intent as string,
+        },
+      });
+
+      await addJob("purchase-domain", {
+        domainId: domain.id,
+        domainName,
+        siteId,
+      });
+    }
+    return;
+  }
+
+  // Handle subscription checkout
+  const userId = metadata?.userId;
+  const plan = metadata?.plan as Plan | undefined;
 
   if (!userId || !plan) return;
 
