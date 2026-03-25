@@ -1,6 +1,7 @@
 import { Worker } from "bullmq";
 import IORedis from "ioredis";
 import { handleGenerateSite } from "./jobs/generate-site";
+import { handleRebuildSite } from "./jobs/rebuild-site";
 
 const connection = new IORedis({
   host: process.env.REDIS_HOST || "redis",
@@ -19,8 +20,7 @@ const worker = new Worker(
         await handleGenerateSite(job.data);
         break;
       case "rebuild-site":
-        // TODO: Plan 4 Task 4 — iteration handler
-        console.log("Site rebuild not yet implemented");
+        await handleRebuildSite(job.data);
         break;
       case "purchase-domain":
         // TODO: Plan 5
