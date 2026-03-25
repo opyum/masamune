@@ -9,10 +9,11 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
-    "@prisma/client": "^7.5.0",
+    "@prisma/client": "^6.19.2",
     "bullmq": "^5.0.0",
     "ioredis": "^5.0.0",
-    "ovh": "^2.0.3"
+    "ovh": "^2.0.3",
+    "prisma": "^6.19.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

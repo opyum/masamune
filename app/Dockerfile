@@ -9,6 +9,12 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Prisma generate
+RUN npx prisma generate
+# Build-time env vars (overridden at runtime)
+ENV NEXT_PUBLIC_SUPABASE_URL=http://placeholder
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder
+ENV STRIPE_SECRET_KEY=sk_placeholder
 RUN npm run build
 
 FROM base AS runner
