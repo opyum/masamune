@@ -1,5 +1,6 @@
 import { Worker } from "bullmq";
 import IORedis from "ioredis";
+import { handleGenerateSite } from "./jobs/generate-site";
 
 const connection = new IORedis({
   host: process.env.REDIS_HOST || "redis",
@@ -12,18 +13,25 @@ const worker = new Worker(
   "masamune-jobs",
   async (job) => {
     console.log(`Processing job ${job.id}: ${job.name}`);
-    // Job handlers will be added in Plan 4
+
     switch (job.name) {
       case "generate-site":
-        console.log("Site generation not yet implemented");
+        await handleGenerateSite(job.data);
+        break;
+      case "rebuild-site":
+        // TODO: Plan 4 Task 4 — iteration handler
+        console.log("Site rebuild not yet implemented");
         break;
       case "purchase-domain":
+        // TODO: Plan 5
         console.log("Domain purchase not yet implemented");
         break;
       case "configure-dns":
+        // TODO: Plan 5
         console.log("DNS configuration not yet implemented");
         break;
       case "submit-seo":
+        // TODO: Plan 7
         console.log("SEO submission not yet implemented");
         break;
       default:
@@ -37,7 +45,7 @@ const worker = new Worker(
 );
 
 worker.on("completed", (job) => {
-  console.log(`Job ${job.id} completed`);
+  console.log(`Job ${job.id} completed successfully`);
 });
 
 worker.on("failed", (job, err) => {
