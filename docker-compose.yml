@@ -133,10 +133,62 @@ services:
       timeout: 5s
       retries: 5
 
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: masamune-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-masamune}:${POSTGRES_PASSWORD}@postgres:5432/masamune
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      NEXT_PUBLIC_SUPABASE_URL: ${SITE_URL:-http://localhost:3000}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+    networks:
+      - masamune
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: masamune-worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-masamune}:${POSTGRES_PASSWORD}@postgres:5432/masamune
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OVH_APP_KEY: ${OVH_APP_KEY:-}
+      OVH_APP_SECRET: ${OVH_APP_SECRET:-}
+      OVH_CONSUMER_KEY: ${OVH_CONSUMER_KEY:-}
+    volumes:
+      - ./sites-clients:/var/www/sites-clients
+    networks:
+      - masamune
+
   nginx:
     image: nginx:alpine
     container_name: masamune-nginx
     restart: unless-stopped
+    depends_on:
+      - app
     ports:
       - "80:80"
       - "443:443"
