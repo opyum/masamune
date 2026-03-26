@@ -27,11 +27,7 @@ export default async function SignupPage({
         {params.error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
             <p className="text-red-800 text-sm">
-              {params.error === "email_already_registered"
-                ? "Cette adresse email est déjà utilisée."
-                : params.error === "signup_failed"
-                ? "Erreur lors de l'inscription. Réessayez."
-                : decodeURIComponent(params.error)}
+              {decodeURIComponent(params.error)}
             </p>
           </div>
         )}

@@ -7,29 +7,49 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export async function signup(formData: FormData) {
   const supabase = await createSupabaseServerClient();
 
-  const { data, error } = await supabase.auth.signUp({
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-    options: {
-      emailRedirectTo: `${process.env.SITE_URL || "http://72.62.181.156:3080"}/auth/callback`,
-    },
-  });
+  try {
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
-  if (error) {
-    redirect(`/signup?error=${encodeURIComponent(error.message)}`);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${process.env.SITE_URL || "http://72.62.181.156:3080"}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      redirect(`/signup?error=${encodeURIComponent(error.message)}`);
+    }
+
+    // Email already registered (identities empty or undefined)
+    if (!data?.user?.identities || data.user.identities.length === 0) {
+      redirect("/signup?error=" + encodeURIComponent("Cette adresse email est déjà utilisée."));
+    }
+
+    // If autoconfirm: session exists, go to dashboard
+    if (data?.session) {
+      revalidatePath("/", "layout");
+      redirect("/dashboard");
+    }
+
+    // Try to sign in immediately (autoconfirm may not return session in signUp)
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (!loginError) {
+      revalidatePath("/", "layout");
+      redirect("/dashboard");
+    }
+
+    // Fallback: email confirmation needed
+    redirect("/signup?success=check_email");
+  } catch (e: unknown) {
+    // redirect() throws a NEXT_REDIRECT error - let it through
+    if (e && typeof e === "object" && "digest" in e) throw e;
+    redirect("/signup?error=" + encodeURIComponent("Une erreur est survenue. Réessayez."));
   }
-
-  // If email already exists (identities empty)
-  if (data?.user?.identities?.length === 0) {
-    redirect("/signup?error=email_already_registered");
-  }
-
-  // If user is auto-confirmed (session exists), go directly to dashboard
-  if (data?.session) {
-    revalidatePath("/", "layout");
-    redirect("/dashboard");
-  }
-
-  // Otherwise, email confirmation is needed
-  redirect("/signup?success=check_email");
 }
