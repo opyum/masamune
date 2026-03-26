@@ -1,6 +1,12 @@
 import { login, loginWithGoogle } from "./actions";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
@@ -8,6 +14,16 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-gray-900">Masamune</h1>
           <p className="mt-2 text-gray-600">Connectez-vous à votre compte</p>
         </div>
+
+        {params.error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+            <p className="text-red-800 text-sm">
+              {params.error === "invalid_credentials"
+                ? "Email ou mot de passe incorrect."
+                : "Erreur de connexion. Réessayez."}
+            </p>
+          </div>
+        )}
 
         <form className="space-y-4">
           <div>

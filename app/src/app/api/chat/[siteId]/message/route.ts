@@ -64,7 +64,7 @@ export async function POST(
     { role: "user" as const, content: message },
   ];
 
-  // Stream response from Haiku
+  // Stream response from Gemini
   const stream = await streamHaikuResponse(
     HAIKU_QUALIFYING_SYSTEM_PROMPT,
     aiMessages
@@ -76,12 +76,9 @@ export async function POST(
   const encoder = new TextEncoder();
   const readable = new ReadableStream({
     async start(controller) {
-      for await (const event of stream) {
-        if (
-          event.type === "content_block_delta" &&
-          event.delta.type === "text_delta"
-        ) {
-          const text = event.delta.text;
+      for await (const chunk of stream.stream) {
+        const text = chunk.text();
+        if (text) {
           fullResponse += text;
           controller.enqueue(encoder.encode(text));
         }
