@@ -16,13 +16,18 @@ export default async function DashboardPage() {
 
   if (!user) return null;
 
-  const sites = await prisma.site.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    include: {
-      domains: { select: { domainName: true, status: true } },
-    },
-  });
+  let sites: Awaited<ReturnType<typeof prisma.site.findMany>> = [];
+  try {
+    sites = await prisma.site.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        domains: { select: { domainName: true, status: true } },
+      },
+    });
+  } catch {
+    // DB not ready yet - show empty state
+  }
 
   return (
     <div>
