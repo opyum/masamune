@@ -49,7 +49,7 @@ export default function ChatInterface({
         headers: { "x-internal-secret": "client-trigger" },
       });
       if (res.ok) {
-        const data = await res.json();
+        await res.json();
         setGenerationDone(true);
         // Extract slug from the site for preview
         const siteRes = await fetch(`/api/sites/${siteId}`);

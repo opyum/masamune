@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth";
 import { streamHaikuResponse } from "@/lib/ai/haiku";
 import { HAIKU_QUALIFYING_SYSTEM_PROMPT, extractBriefJson } from "@/lib/ai/prompts";
-import { addJob } from "@/lib/queue";
+// addJob removed — generation triggered from client
 
 export async function POST(
   request: NextRequest,
