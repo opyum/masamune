@@ -4,7 +4,7 @@
 export async function addJob(
   name: string,
   data: Record<string, unknown>,
-  _options?: { priority?: number }
+  _options?: { priority?: number } // eslint-disable-line @typescript-eslint/no-unused-vars
 ) {
   console.log(`[queue] Job "${name}" received (serverless mode — processing inline)`);
 
