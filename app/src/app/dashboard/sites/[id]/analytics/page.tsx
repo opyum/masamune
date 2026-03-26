@@ -14,16 +14,27 @@ export default async function SiteAnalyticsPage({
 
   const { id } = await params;
 
-  const site = await prisma.site.findFirst({
-    where: { id, userId: user.id },
-  });
+  let site = null;
+  try {
+    site = await prisma.site.findFirst({
+      where: { id, userId: user.id },
+    });
+  } catch {
+    // DB not ready - redirect to dashboard
+    redirect("/dashboard");
+  }
 
   if (!site) redirect("/dashboard");
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { plan: true },
-  });
+  let dbUser = null;
+  try {
+    dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { plan: true },
+    });
+  } catch {
+    // DB not ready - show fallback
+  }
 
   const hasPlan = dbUser?.plan === "business" || dbUser?.plan === "enterprise";
 

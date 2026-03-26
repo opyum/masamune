@@ -16,18 +16,28 @@ export default async function DomainsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const domains = await prisma.domain.findMany({
-    where: { userId: user.id },
-    include: {
-      site: { select: { businessName: true, slug: true } },
-    },
-    orderBy: { domainName: "asc" },
-  });
+  let domains: Awaited<ReturnType<typeof prisma.domain.findMany>> = [];
+  try {
+    domains = await prisma.domain.findMany({
+      where: { userId: user.id },
+      include: {
+        site: { select: { businessName: true, slug: true } },
+      },
+      orderBy: { domainName: "asc" },
+    });
+  } catch {
+    // DB not ready - show empty state
+  }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { plan: true },
-  });
+  let dbUser = null;
+  try {
+    dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { plan: true },
+    });
+  } catch {
+    // DB not ready - show empty state
+  }
 
   const isFree = dbUser?.plan === "free";
 

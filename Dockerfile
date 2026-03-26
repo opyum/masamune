@@ -35,10 +35,10 @@ COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 # Startup script: migrate then start
 COPY --from=builder /app/node_modules/.package-lock.json ./node_modules/.package-lock.json
 RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'npx prisma db push --skip-generate 2>/dev/null || echo "DB push skipped"' >> /app/start.sh && \
-    echo 'exec node server.js' >> /app/start.sh && \
+    echo 'echo "Running prisma db push..."' >> /app/start.sh && \
+    echo 'npx prisma db push --skip-generate --accept-data-loss 2>&1 || echo "DB push skipped"' >> /app/start.sh && \
+    echo 'exec su -s /bin/sh nextjs -c "node /app/server.js"' >> /app/start.sh && \
     chmod +x /app/start.sh
-USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 CMD ["sh", "/app/start.sh"]

@@ -14,14 +14,20 @@ export default async function SiteDetailPage({
 
   const { id } = await params;
 
-  const site = await prisma.site.findFirst({
-    where: { id, userId: user.id },
-    include: {
-      conversations: {
-        include: { messages: { orderBy: { createdAt: "asc" } } },
+  let site = null;
+  try {
+    site = await prisma.site.findFirst({
+      where: { id, userId: user.id },
+      include: {
+        conversations: {
+          include: { messages: { orderBy: { createdAt: "asc" } } },
+        },
       },
-    },
-  });
+    });
+  } catch {
+    // DB not ready - redirect to dashboard
+    redirect("/dashboard");
+  }
 
   if (!site) redirect("/dashboard");
 

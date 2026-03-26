@@ -11,20 +11,25 @@ export async function getAuthenticatedUser() {
   }
 
   // Ensure user exists in our DB
-  let dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-  });
-
-  if (!dbUser) {
-    dbUser = await prisma.user.create({
-      data: {
-        id: user.id,
-        email: user.email!,
-      },
+  try {
+    let dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
     });
-  }
 
-  return { user: dbUser, error: null };
+    if (!dbUser) {
+      dbUser = await prisma.user.create({
+        data: {
+          id: user.id,
+          email: user.email!,
+        },
+      });
+    }
+
+    return { user: dbUser, error: null };
+  } catch {
+    // DB not ready — return null user (API routes will return 401)
+    return { user: null, error: "Database not ready" };
+  }
 }
 
 export function unauthorizedResponse() {

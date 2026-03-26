@@ -13,19 +13,33 @@ export default async function BillingPage() {
 
   if (!authUser) redirect("/login");
 
-  const user = await prisma.user.findUnique({
-    where: { id: authUser.id },
-    include: {
-      subscriptions: {
-        where: { status: "active" },
-        orderBy: { currentPeriodEnd: "desc" },
-        take: 1,
+  let user = null;
+  try {
+    user = await prisma.user.findUnique({
+      where: { id: authUser.id },
+      include: {
+        subscriptions: {
+          where: { status: "active" },
+          orderBy: { currentPeriodEnd: "desc" },
+          take: 1,
+        },
+        _count: { select: { sites: true } },
       },
-      _count: { select: { sites: true } },
-    },
-  });
+    });
+  } catch {
+    // DB not ready - show fallback
+  }
 
-  if (!user) redirect("/login");
+  if (!user) {
+    return (
+      <div className="space-y-8">
+        <h1 className="text-2xl font-bold text-gray-900">Facturation</h1>
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <p className="text-sm text-gray-500">Impossible de charger les informations de facturation. Veuillez réessayer plus tard.</p>
+        </div>
+      </div>
+    );
+  }
 
   const currentPlan = user.plan as PlanKey;
   const planConfig = PLANS[currentPlan];
