@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -18,10 +19,17 @@ export async function signup(formData: FormData) {
     redirect(`/signup?error=${encodeURIComponent(error.message)}`);
   }
 
-  // If email confirmation is required, redirect to confirmation page
+  // If email already exists (identities empty)
   if (data?.user?.identities?.length === 0) {
     redirect("/signup?error=email_already_registered");
   }
 
+  // If user is auto-confirmed (session exists), go directly to dashboard
+  if (data?.session) {
+    revalidatePath("/", "layout");
+    redirect("/dashboard");
+  }
+
+  // Otherwise, email confirmation is needed
   redirect("/signup?success=check_email");
 }
