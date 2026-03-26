@@ -12,11 +12,8 @@ export async function POST(
 ) {
   const { siteId } = await params;
 
-  // Verify internal call (from queue.ts or chat API)
-  const secret = request.headers.get("x-internal-secret");
-  if (secret !== process.env.JWT_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Allow calls from client (authenticated via cookies) or internal
+  // The site ownership is verified below via Prisma query
 
   try {
     // 1. Get site and brief

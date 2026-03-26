@@ -132,11 +132,9 @@ export async function POST(
           data: { briefExtracted: true },
         });
 
-        // Enqueue generation job
-        await addJob("generate-site", {
-          siteId,
-          briefJson,
-        });
+        // Generation will be triggered by the client via /api/generate/[siteId]
+        // (Vercel hobby plan has 10s timeout, so fire-and-forget doesn't work)
+        console.log(`[chat] Brief extracted for site ${siteId} — client will trigger generation`);
       }
 
       controller.close();

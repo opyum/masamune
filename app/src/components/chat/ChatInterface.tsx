@@ -24,6 +24,9 @@ export default function ChatInterface({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isComplete, setIsComplete] = useState(briefExtracted);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationDone, setGenerationDone] = useState(false);
+  const [previewSlug, setPreviewSlug] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,6 +40,32 @@ export default function ChatInterface({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function triggerGeneration() {
+    setIsGenerating(true);
+    try {
+      const res = await fetch(`/api/generate/${siteId}`, {
+        method: "POST",
+        headers: { "x-internal-secret": "client-trigger" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setGenerationDone(true);
+        // Extract slug from the site for preview
+        const siteRes = await fetch(`/api/sites/${siteId}`);
+        if (siteRes.ok) {
+          const site = await siteRes.json();
+          setPreviewSlug(site.slug);
+        }
+      } else {
+        console.error("Generation failed:", await res.text());
+      }
+    } catch (err) {
+      console.error("Generation error:", err);
+    } finally {
+      setIsGenerating(false);
+    }
+  }
 
   async function sendMessage(content: string) {
     // Add user message to UI
@@ -84,6 +113,8 @@ export default function ChatInterface({
       // Check if brief was extracted (contains brief_json block)
       if (fullText.includes("```brief_json")) {
         setIsComplete(true);
+        // Trigger site generation from client (avoids Vercel 10s timeout)
+        triggerGeneration();
       }
     } catch (err) {
       console.error("Chat error:", err);
@@ -122,12 +153,37 @@ export default function ChatInterface({
 
       {isComplete ? (
         <div className="p-4 bg-green-50 border-t border-green-200 text-center">
-          <p className="text-green-800 font-medium">
-            Votre site est en cours de création !
-          </p>
-          <p className="text-green-600 text-sm mt-1">
-            Vous serez notifié dès qu&apos;il sera prêt.
-          </p>
+          {generationDone && previewSlug ? (
+            <>
+              <p className="text-green-800 font-medium">
+                🎉 Votre site est prêt !
+              </p>
+              <a
+                href={`/api/preview/${previewSlug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Voir mon site →
+              </a>
+            </>
+          ) : isGenerating ? (
+            <>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600 mx-auto" />
+              <p className="text-green-800 font-medium mt-2">
+                Génération de votre site en cours...
+              </p>
+              <p className="text-green-600 text-sm mt-1">
+                Cela prend environ 30 secondes.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-green-800 font-medium">
+                Brief validé ! Lancement de la génération...
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <ChatInput
