@@ -1,54 +1,54 @@
 export const metadata = {
-  title: "Politique de Confidentialite - Masamune",
+  title: "Politique de Confidentialité - Masamune",
 };
 
 export default function ConfidentialitePage() {
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
       <h1 className="text-3xl font-bold text-slate-800 mb-8">
-        Politique de Confidentialite
+        Politique de Confidentialité
       </h1>
       <p className="text-sm text-slate-400 mb-8">
-        Derniere mise a jour : 25 mars 2026
+        Dernière mise à jour : 25 mars 2026
       </p>
       <div className="prose prose-slate max-w-none space-y-6 text-sm text-slate-600 leading-relaxed">
         <section>
           <h2 className="text-lg font-semibold text-slate-800 mb-3">
-            1. Donnees collectees
+            1. Données collectées
           </h2>
           <p>
-            Nous collectons les donnees suivantes lors de votre utilisation du
+            Nous collectons les données suivantes lors de votre utilisation du
             service Masamune :
           </p>
           <ul className="list-disc pl-6 space-y-1 mt-2">
             <li>Adresse e-mail (inscription et connexion)</li>
             <li>
-              Informations de votre activite (fournies lors de la creation du
+              Informations de votre activité (fournies lors de la création du
               site)
             </li>
-            <li>Donnees de paiement (traitees par Stripe, non stockees chez nous)</li>
-            <li>Donnees de navigation (via Umami Analytics, sans cookies)</li>
+            <li>Données de paiement (traitées par Stripe, non stockées chez nous)</li>
+            <li>Données de navigation (via Umami Analytics, sans cookies)</li>
           </ul>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-slate-800 mb-3">
-            2. Finalites du traitement
+            2. Finalités du traitement
           </h2>
           <ul className="list-disc pl-6 space-y-1">
-            <li>Fourniture du service de creation et d&apos;hebergement de sites</li>
+            <li>Fourniture du service de création et d&apos;hébergement de sites</li>
             <li>Gestion de votre compte et de votre abonnement</li>
-            <li>Amelioration du service et statistiques d&apos;utilisation</li>
-            <li>Communication relative au service (notifications, mises a jour)</li>
+            <li>Amélioration du service et statistiques d&apos;utilisation</li>
+            <li>Communication relative au service (notifications, mises à jour)</li>
           </ul>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-slate-800 mb-3">
-            3. Base legale
+            3. Base légale
           </h2>
           <p>
-            Le traitement de vos donnees repose sur l&apos;execution du contrat
+            Le traitement de vos données repose sur l&apos;exécution du contrat
             (fourniture du service) et votre consentement pour les communications
             marketing.
           </p>
@@ -56,22 +56,22 @@ export default function ConfidentialitePage() {
 
         <section>
           <h2 className="text-lg font-semibold text-slate-800 mb-3">
-            4. Duree de conservation
+            4. Durée de conservation
           </h2>
           <p>
-            Vos donnees sont conservees pendant la duree de votre abonnement et
-            jusqu&apos;a 12 mois apres la suppression de votre compte, sauf
-            obligation legale de conservation plus longue.
+            Vos données sont conservées pendant la durée de votre abonnement et
+            jusqu&apos;à 12 mois après la suppression de votre compte, sauf
+            obligation légale de conservation plus longue.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-slate-800 mb-3">
-            5. Partage des donnees
+            5. Partage des données
           </h2>
           <p>
-            Vos donnees ne sont jamais vendues. Elles peuvent etre partagees
-            avec nos sous-traitants techniques (hebergement, paiement, envoi
+            Vos données ne sont jamais vendues. Elles peuvent être partagées
+            avec nos sous-traitants techniques (hébergement, paiement, envoi
             d&apos;e-mails) dans le strict cadre de la fourniture du service.
           </p>
         </section>
@@ -81,15 +81,15 @@ export default function ConfidentialitePage() {
             6. Vos droits
           </h2>
           <p>
-            Conformement au RGPD, vous disposez des droits suivants :
+            Conformément au RGPD, vous disposez des droits suivants :
           </p>
           <ul className="list-disc pl-6 space-y-1 mt-2">
-            <li>Droit d&apos;acces a vos donnees</li>
+            <li>Droit d&apos;accès à vos données</li>
             <li>Droit de rectification</li>
-            <li>Droit a l&apos;effacement</li>
-            <li>Droit a la portabilite</li>
+            <li>Droit à l&apos;effacement</li>
+            <li>Droit à la portabilité</li>
             <li>Droit d&apos;opposition</li>
-            <li>Droit a la limitation du traitement</li>
+            <li>Droit à la limitation du traitement</li>
           </ul>
           <p className="mt-2">
             Pour exercer ces droits, contactez-nous a : contact@masamune.fr
@@ -102,10 +102,10 @@ export default function ConfidentialitePage() {
           </h2>
           <p>
             Masamune utilise Umami Analytics, une solution d&apos;analyse respectueuse
-            de la vie privee qui ne depose aucun cookie et ne collecte aucune
-            donnee personnelle. Seuls des cookies techniques strictement
-            necessaires au fonctionnement du service (session d&apos;authentification)
-            sont utilises.
+            de la vie privée qui ne dépose aucun cookie et ne collecte aucune
+            donnée personnelle. Seuls des cookies techniques strictement
+            nécessaires au fonctionnement du service (session d&apos;authentification)
+            sont utilisés.
           </p>
         </section>
 
@@ -114,7 +114,7 @@ export default function ConfidentialitePage() {
             8. Contact
           </h2>
           <p>
-            Pour toute question relative a la protection de vos donnees :<br />
+            Pour toute question relative à la protection de vos données :<br />
             contact@masamune.fr
           </p>
         </section>

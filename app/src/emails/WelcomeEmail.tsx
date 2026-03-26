@@ -18,7 +18,7 @@ export default function WelcomeEmail({ email }: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Bienvenue sur Masamune — creez votre site en 5 minutes</Preview>
+      <Preview>Bienvenue sur Masamune — créez votre site en 5 minutes</Preview>
       <Body style={main}>
         <Container style={container}>
           <Heading style={h1}>Bienvenue sur Masamune</Heading>
@@ -26,8 +26,8 @@ export default function WelcomeEmail({ email }: WelcomeEmailProps) {
             Bonjour,
           </Text>
           <Text style={text}>
-            Votre compte a ete cree avec l&apos;adresse{" "}
-            <strong>{email}</strong>. Vous pouvez maintenant creer votre site
+            Votre compte a été créé avec l&apos;adresse{" "}
+            <strong>{email}</strong>. Vous pouvez maintenant créer votre site
             professionnel en quelques minutes.
           </Text>
           <Section style={buttonContainer}>
@@ -35,15 +35,15 @@ export default function WelcomeEmail({ email }: WelcomeEmailProps) {
               href={`${process.env.SITE_URL || "https://masamune.fr"}/dashboard/new`}
               style={button}
             >
-              Creer mon premier site
+              Créer mon premier site
             </Link>
           </Section>
           <Text style={text}>
-            Repondez simplement aux questions de notre IA, et votre site sera en
-            ligne en 5 minutes. Aucune competence technique requise.
+            Répondez simplement aux questions de notre IA, et votre site sera en
+            ligne en 5 minutes. Aucune compétence technique requise.
           </Text>
           <Text style={footer}>
-            &mdash; L&apos;equipe Masamune
+            &mdash; L&apos;équipe Masamune
           </Text>
         </Container>
       </Body>

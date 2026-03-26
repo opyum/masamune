@@ -46,7 +46,7 @@ export default async function SiteDetailPage({
             )}
             {site.status === "generating" && (
               <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                En cours de generation
+                En cours de génération
               </span>
             )}
           </p>

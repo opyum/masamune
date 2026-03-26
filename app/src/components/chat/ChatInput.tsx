@@ -57,7 +57,7 @@ export default function ChatInput({ onSend, onFileUpload, disabled, placeholder,
       if (onFileUpload) {
         onFileUpload(file);
       }
-      onSend(`[Fichier envoye : ${file.name}]`);
+      onSend(`[Fichier envoyé : ${file.name}]`);
     } catch {
       alert("Erreur de connexion");
     } finally {
@@ -97,7 +97,7 @@ export default function ChatInput({ onSend, onFileUpload, disabled, placeholder,
           e.target.style.height = `${e.target.scrollHeight}px`;
         }}
         onKeyDown={handleKeyDown}
-        placeholder={placeholder || "Decrivez votre activite..."}
+        placeholder={placeholder || "Décrivez votre activité..."}
         disabled={disabled || uploading}
         rows={1}
         className="flex-1 resize-none px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 max-h-32"

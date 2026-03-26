@@ -2,7 +2,7 @@ import PricingTable from "@/components/pricing/PricingTable";
 
 export const metadata = {
   title: "Tarifs - Masamune",
-  description: "Choisissez le plan qui correspond a vos besoins",
+  description: "Choisissez le plan qui correspond à vos besoins",
 };
 
 export default function PricingPage() {
@@ -14,7 +14,7 @@ export default function PricingPage() {
             Tarifs simples et transparents
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Lancez votre site en quelques minutes. Pas de frais caches, pas
+            Lancez votre site en quelques minutes. Pas de frais cachés, pas
             d&apos;engagement.
           </p>
         </div>

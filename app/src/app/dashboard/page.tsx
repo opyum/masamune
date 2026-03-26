@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 const statusConfig: Record<string, { label: string; classes: string }> = {
   live: { label: "En ligne", classes: "bg-emerald-50 text-emerald-600" },
-  generating: { label: "Generation", classes: "bg-amber-50 text-amber-600" },
+  generating: { label: "Génération", classes: "bg-amber-50 text-amber-600" },
   error: { label: "Erreur", classes: "bg-red-50 text-red-600" },
   drafting: { label: "Brouillon", classes: "bg-blue-50 text-blue-600" },
   partial: { label: "Partiel", classes: "bg-amber-50 text-amber-600" },
@@ -50,13 +50,13 @@ export default async function DashboardPage() {
             Aucun site pour le moment
           </h3>
           <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-            Creez votre premier site en quelques minutes grace a l&apos;IA.
+            Créez votre premier site en quelques minutes grâce à l&apos;IA.
           </p>
           <Link
             href="/dashboard/new"
             className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-[0.98]"
           >
-            Creer mon premier site
+            Créer mon premier site
           </Link>
         </div>
       ) : (

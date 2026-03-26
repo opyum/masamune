@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const domainStatusConfig: Record<string, { label: string; classes: string }> = {
   searching: { label: "Recherche", classes: "bg-blue-50 text-blue-600" },
-  purchased: { label: "Achete", classes: "bg-amber-50 text-amber-600" },
+  purchased: { label: "Acheté", classes: "bg-amber-50 text-amber-600" },
   dns_configured: { label: "DNS OK", classes: "bg-emerald-50 text-emerald-600" },
   ssl_active: { label: "SSL actif", classes: "bg-emerald-50 text-emerald-600" },
   error: { label: "Erreur", classes: "bg-red-50 text-red-600" },
@@ -40,10 +40,10 @@ export default async function DomainsPage() {
       {isFree && (
         <div className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-6">
           <h3 className="text-sm font-semibold text-indigo-800">
-            Domaine personnalise
+            Domaine personnalisé
           </h3>
           <p className="mt-1 text-sm text-indigo-600">
-            Passez au plan Pro pour acheter et configurer un domaine personnalise.
+            Passez au plan Pro pour acheter et configurer un domaine personnalisé.
           </p>
           <Link
             href="/dashboard/billing"
@@ -65,7 +65,7 @@ export default async function DomainsPage() {
             Aucun domaine
           </h3>
           <p className="text-sm text-slate-500 max-w-sm mx-auto">
-            Vos domaines personnalises apparaitront ici une fois configures.
+            Vos domaines personnalisés apparaîtront ici une fois configurés.
           </p>
         </div>
       ) : (
@@ -84,7 +84,7 @@ export default async function DomainsPage() {
                       {domain.domainName}
                     </h3>
                     <p className="mt-1 text-sm text-slate-500">
-                      Lie a : {domain.site.businessName} ({domain.site.slug}
+                      Lié à : {domain.site.businessName} ({domain.site.slug}
                       .masamune.app)
                     </p>
                   </div>

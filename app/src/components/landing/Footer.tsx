@@ -2,14 +2,14 @@ import Link from "next/link";
 
 const footerLinks = {
   Produit: [
-    { label: "Fonctionnalites", href: "#comment-ca-marche" },
+    { label: "Fonctionnalités", href: "#comment-ca-marche" },
     { label: "Tarifs", href: "/pricing" },
     { label: "FAQ", href: "#faq" },
   ],
-  Legal: [
-    { label: "Mentions legales", href: "/mentions-legales" },
+  Légal: [
+    { label: "Mentions légales", href: "/mentions-legales" },
     { label: "CGU", href: "/cgu" },
-    { label: "Confidentialite", href: "/confidentialite" },
+    { label: "Confidentialité", href: "/confidentialite" },
   ],
   Contact: [
     { label: "contact@masamune.fr", href: "mailto:contact@masamune.fr" },
@@ -47,7 +47,7 @@ export default function Footer() {
         </div>
         <div className="mt-12 pt-8 border-t border-slate-700">
           <p className="text-sm text-slate-500 text-center">
-            &copy; 2026 Masamune. Tous droits reserves.
+            &copy; 2026 Masamune. Tous droits réservés.
           </p>
         </div>
       </div>

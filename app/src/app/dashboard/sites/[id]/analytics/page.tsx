@@ -47,7 +47,7 @@ export default async function SiteAnalyticsPage({
             Disponible avec le plan Business
           </h3>
           <p className="text-sm text-indigo-600 mb-4">
-            Accedez aux statistiques de visites, sources de trafic et pages
+            Accédez aux statistiques de visites, sources de trafic et pages
             populaires de votre site.
           </p>
           <Link
@@ -64,7 +64,7 @@ export default async function SiteAnalyticsPage({
             {[
               { label: "Visiteurs", value: "--", sub: "Ce mois" },
               { label: "Pages vues", value: "--", sub: "Ce mois" },
-              { label: "Duree moy.", value: "--", sub: "min:sec" },
+              { label: "Durée moy.", value: "--", sub: "min:sec" },
               { label: "Taux de rebond", value: "--", sub: "%" },
             ].map((kpi) => (
               <div
@@ -89,7 +89,7 @@ export default async function SiteAnalyticsPage({
             </h3>
             <div className="h-48 flex items-center justify-center bg-slate-50 rounded-lg">
               <p className="text-sm text-slate-400">
-                Le graphique sera affiche une fois les donnees Umami connectees.
+                Le graphique sera affiché une fois les données Umami connectées.
               </p>
             </div>
           </div>
@@ -101,7 +101,7 @@ export default async function SiteAnalyticsPage({
                 Sources de trafic
               </h3>
               <div className="h-32 flex items-center justify-center bg-slate-50 rounded-lg">
-                <p className="text-xs text-slate-400">Bientot disponible</p>
+                <p className="text-xs text-slate-400">Bientôt disponible</p>
               </div>
             </div>
             <div className="rounded-xl border border-slate-200 bg-white p-6">
@@ -109,7 +109,7 @@ export default async function SiteAnalyticsPage({
                 Pages populaires
               </h3>
               <div className="h-32 flex items-center justify-center bg-slate-50 rounded-lg">
-                <p className="text-xs text-slate-400">Bientot disponible</p>
+                <p className="text-xs text-slate-400">Bientôt disponible</p>
               </div>
             </div>
           </div>

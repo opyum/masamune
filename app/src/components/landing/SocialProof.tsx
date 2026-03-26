@@ -1,8 +1,8 @@
 export default function SocialProof() {
   const stats = [
-    { value: "500+", label: "Sites crees" },
+    { value: "500+", label: "Sites créés" },
     { value: "98%", label: "Clients satisfaits" },
-    { value: "5 min", label: "Temps de creation" },
+    { value: "5 min", label: "Temps de création" },
   ];
 
   return (

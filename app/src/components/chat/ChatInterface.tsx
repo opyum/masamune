@@ -91,7 +91,7 @@ export default function ChatInterface({
         const updated = [...prev];
         updated[updated.length - 1] = {
           role: "assistant",
-          content: "Desolee, une erreur est survenue. Pouvez-vous reessayer ?",
+          content: "Désolée, une erreur est survenue. Pouvez-vous réessayer ?",
         };
         return updated;
       });
@@ -123,17 +123,17 @@ export default function ChatInterface({
       {isComplete ? (
         <div className="p-4 bg-green-50 border-t border-green-200 text-center">
           <p className="text-green-800 font-medium">
-            Votre site est en cours de creation !
+            Votre site est en cours de création !
           </p>
           <p className="text-green-600 text-sm mt-1">
-            Vous serez notifie des qu&apos;il sera pret.
+            Vous serez notifié dès qu&apos;il sera prêt.
           </p>
         </div>
       ) : (
         <ChatInput
           onSend={sendMessage}
           disabled={isStreaming}
-          placeholder="Repondez ici..."
+          placeholder="Répondez ici..."
           siteId={siteId}
         />
       )}

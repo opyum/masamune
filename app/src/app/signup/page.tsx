@@ -6,7 +6,7 @@ export default function SignupPage() {
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Masamune</h1>
-          <p className="mt-2 text-gray-600">Creez votre site en 5 minutes</p>
+          <p className="mt-2 text-gray-600">Créez votre site en 5 minutes</p>
         </div>
 
         <form className="space-y-4">
@@ -41,12 +41,12 @@ export default function SignupPage() {
             formAction={signup}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Creer mon compte gratuitement
+            Créer mon compte gratuitement
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-600">
-          Deja un compte ?{" "}
+          Déjà un compte ?{" "}
           <a href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
             Se connecter
           </a>

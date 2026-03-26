@@ -12,25 +12,25 @@ const examples = [
     accent: "bg-blue-300/50",
   },
   {
-    name: "Salon Elegance",
-    sector: "Beaute",
+    name: "Salon Élégance",
+    sector: "Beauté",
     gradient: "from-pink-50 to-rose-50",
     accent: "bg-pink-300/50",
   },
   {
     name: "Cabinet Dupont Avocats",
-    sector: "Profession liberale",
+    sector: "Profession libérale",
     gradient: "from-slate-50 to-gray-100",
     accent: "bg-slate-300/50",
   },
   {
     name: "Yoga Harmony",
-    sector: "Sport & Bien-etre",
+    sector: "Sport & Bien-être",
     gradient: "from-emerald-50 to-teal-50",
     accent: "bg-emerald-300/50",
   },
   {
-    name: "Auto Ecole Conduite+",
+    name: "Auto École Conduite+",
     sector: "Education",
     gradient: "from-violet-50 to-purple-50",
     accent: "bg-violet-300/50",
@@ -46,7 +46,7 @@ export default function Examples() {
             Des sites qui impressionnent
           </h2>
           <p className="mt-3 text-lg text-slate-500">
-            Decouvrez ce que Masamune peut creer pour votre secteur
+            Découvrez ce que Masamune peut créer pour votre secteur
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

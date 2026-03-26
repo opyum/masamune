@@ -7,9 +7,9 @@ import PricingTable from "@/components/pricing/PricingTable";
 import FAQ from "@/components/landing/FAQ";
 
 export const metadata = {
-  title: "Masamune - Decrivez votre activite. Votre site est en ligne.",
+  title: "Masamune - Décrivez votre activité. Votre site est en ligne.",
   description:
-    "Creez un site professionnel en 5 minutes grace a l'IA. Sans competence technique, optimise pour Google, domaine inclus.",
+    "Créez un site professionnel en 5 minutes grâce à l'IA. Sans compétence technique, optimisé pour Google, domaine inclus.",
 };
 
 export default function LandingPage() {
@@ -27,7 +27,7 @@ export default function LandingPage() {
               Tarifs simples et transparents
             </h2>
             <p className="mt-3 text-lg text-slate-500">
-              Pas de frais caches, pas d&apos;engagement.
+              Pas de frais cachés, pas d&apos;engagement.
             </p>
           </div>
           <PricingTable />

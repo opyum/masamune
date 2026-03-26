@@ -7,14 +7,14 @@ const rows = [
     masamune: "0 EUR",
   },
   {
-    label: "Delai de creation",
+    label: "Délai de création",
     agency: "4 semaines",
     cms: "2 semaines",
     ai: "1 heure",
     masamune: "5 minutes",
   },
   {
-    label: "SEO optimise",
+    label: "SEO optimisé",
     agency: true,
     cms: false,
     ai: false,
@@ -30,8 +30,8 @@ const rows = [
   {
     label: "Maintenance",
     agency: "Manuelle",
-    cms: "A votre charge",
-    ai: "A votre charge",
+    cms: "À votre charge",
+    ai: "À votre charge",
     masamune: "Automatique",
   },
   {
@@ -42,7 +42,7 @@ const rows = [
     masamune: true,
   },
   {
-    label: "Competences requises",
+    label: "Compétences requises",
     agency: false,
     cms: true,
     ai: true,

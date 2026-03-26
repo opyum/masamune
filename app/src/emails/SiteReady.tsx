@@ -27,10 +27,10 @@ export default function SiteReady({
       <Preview>Votre site {businessName} est en ligne !</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Votre site est pret !</Heading>
+          <Heading style={h1}>Votre site est prêt !</Heading>
           <Text style={text}>
-            Bonne nouvelle ! Votre site <strong>{businessName}</strong> a ete
-            genere avec succes et est desormais en ligne.
+            Bonne nouvelle ! Votre site <strong>{businessName}</strong> a été
+            généré avec succès et est désormais en ligne.
           </Text>
           <Section style={card}>
             <Text style={cardLabel}>Adresse de votre site</Text>
@@ -44,11 +44,11 @@ export default function SiteReady({
             </Link>
           </Section>
           <Text style={text}>
-            Vous pouvez modifier votre site a tout moment depuis votre tableau de
+            Vous pouvez modifier votre site à tout moment depuis votre tableau de
             bord en envoyant un message dans le chat.
           </Text>
           <Text style={footer}>
-            &mdash; L&apos;equipe Masamune
+            &mdash; L&apos;équipe Masamune
           </Text>
         </Container>
       </Body>

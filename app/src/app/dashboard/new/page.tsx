@@ -15,13 +15,13 @@ export default function NewSitePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           businessName: "Nouveau site",
-          businessType: "a-definir",
+          businessType: "à-définir",
         }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        alert(data.error || "Erreur lors de la creation");
+        alert(data.error || "Erreur lors de la création");
         return;
       }
 
@@ -45,7 +45,7 @@ export default function NewSitePage() {
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto" />
         <p className="mt-4 text-gray-600">
-          {loading ? "Preparation de votre site..." : "Redirection..."}
+          {loading ? "Préparation de votre site..." : "Redirection..."}
         </p>
       </div>
     </div>

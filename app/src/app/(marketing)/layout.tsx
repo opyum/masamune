@@ -19,7 +19,7 @@ export default function MarketingLayout({
                 href="#comment-ca-marche"
                 className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
               >
-                Fonctionnalites
+                Fonctionnalités
               </a>
               <a
                 href="#tarifs"
@@ -45,7 +45,7 @@ export default function MarketingLayout({
                 href="/signup"
                 className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-[0.98]"
               >
-                Creer mon site
+                Créer mon site
               </Link>
             </div>
           </div>

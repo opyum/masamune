@@ -6,19 +6,19 @@ export default function Hero() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-4xl font-bold tracking-tight text-slate-800 sm:text-5xl lg:text-6xl leading-tight">
-            Decrivez votre activite.{" "}
+            Décrivez votre activité.{" "}
             <span className="text-indigo-600">Votre site est en ligne.</span>
           </h1>
           <p className="mt-6 text-lg text-slate-500 sm:text-xl max-w-2xl mx-auto">
-            Creez un site professionnel en 5 minutes grace a l&apos;IA. Sans
-            aucune competence technique. Optimise pour Google des le depart.
+            Créez un site professionnel en 5 minutes grâce à l&apos;IA. Sans
+            aucune compétence technique. Optimisé pour Google dès le départ.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/signup"
               className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-[0.98]"
             >
-              Creer mon site gratuitement
+              Créer mon site gratuitement
             </Link>
             <p className="text-sm text-slate-400">
               Gratuit, sans carte bancaire
@@ -48,12 +48,12 @@ export default function Hero() {
                       <span className="text-sm font-bold text-indigo-600">M</span>
                     </div>
                     <div className="rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3 text-sm text-slate-700">
-                      Quel type d&apos;activite avez-vous ?
+                      Quel type d&apos;activité avez-vous ?
                     </div>
                   </div>
                   <div className="flex justify-end">
                     <div className="rounded-2xl rounded-tr-sm bg-indigo-600 px-4 py-3 text-sm text-white">
-                      Boulangerie artisanale a Lyon
+                      Boulangerie artisanale à Lyon
                     </div>
                   </div>
                   <div className="flex gap-3">
@@ -61,7 +61,7 @@ export default function Hero() {
                       <span className="text-sm font-bold text-indigo-600">M</span>
                     </div>
                     <div className="rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3 text-sm text-slate-700">
-                      Votre site est pret ! 🎉
+                      Votre site est prêt ! 🎉
                     </div>
                   </div>
                 </div>

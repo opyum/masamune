@@ -109,11 +109,11 @@ export default function ChannelsPage() {
 
       {/* Linked channels */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Canaux lies</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Canaux liés</h3>
         {loading ? (
           <p className="text-gray-500">Chargement...</p>
         ) : links.length === 0 ? (
-          <p className="text-gray-500">Aucun canal lie pour le moment.</p>
+          <p className="text-gray-500">Aucun canal lié pour le moment.</p>
         ) : (
           <div className="space-y-3">
             {links.map((link) => (
@@ -132,7 +132,7 @@ export default function ChannelsPage() {
                       : "bg-yellow-100 text-yellow-800"
                   }`}
                 >
-                  {link.verified ? "Verifie" : "En attente"}
+                  {link.verified ? "Vérifié" : "En attente"}
                 </span>
               </div>
             ))}
@@ -170,7 +170,7 @@ export default function ChannelsPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {channel === "whatsapp"
-                  ? "Numero de telephone (ex: +33612345678)"
+                  ? "Numéro de téléphone (ex: +33612345678)"
                   : channel === "telegram"
                   ? "Nom d'utilisateur Telegram (ex: @moncompte)"
                   : "ID Discord"}
@@ -193,12 +193,12 @@ export default function ChannelsPage() {
         ) : (
           <form onSubmit={handleVerify} className="space-y-4">
             <p className="text-sm text-gray-600">
-              Un code a 6 chiffres a ete envoye sur {channelLabels[channel]}.
+              Un code à 6 chiffres a été envoyé sur {channelLabels[channel]}.
               Entrez-le ci-dessous :
             </p>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Code de verification
+                Code de vérification
               </label>
               <input
                 type="text"
@@ -215,7 +215,7 @@ export default function ChannelsPage() {
                 type="submit"
                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
-                Verifier
+                Vérifier
               </button>
               <button
                 type="button"

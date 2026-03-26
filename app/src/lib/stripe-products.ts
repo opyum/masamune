@@ -22,7 +22,7 @@ export const PLANS = {
       "1 site",
       "Domaine custom",
       "SEO complet",
-      "Modifications illimitees",
+      "Modifications illimitées",
       "WhatsApp ou Telegram",
     ],
     limits: { sites: 1, iterationsPerMonth: -1 },
@@ -50,7 +50,7 @@ export const PLANS = {
     stripePriceIdYearly: process.env.STRIPE_ENTERPRISE_YEARLY_PRICE_ID || "",
     features: [
       "10 sites",
-      "Support dedie",
+      "Support dédié",
       "Design premium",
       "API",
     ],

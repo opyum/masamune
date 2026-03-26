@@ -24,18 +24,18 @@ export default function DomainConfigured({
   return (
     <Html>
       <Head />
-      <Preview>Votre domaine {domainName} est configure !</Preview>
+      <Preview>Votre domaine {domainName} est configuré !</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Domaine configure</Heading>
+          <Heading style={h1}>Domaine configuré</Heading>
           <Text style={text}>
-            Votre domaine <strong>{domainName}</strong> est desormais configure
+            Votre domaine <strong>{domainName}</strong> est désormais configuré
             et pointe vers votre site <strong>{businessName}</strong>.
           </Text>
           <Section style={card}>
             <div style={statusRow}>
               <Text style={statusLabel}>DNS</Text>
-              <Text style={statusOk}>Configure</Text>
+              <Text style={statusOk}>Configuré</Text>
             </div>
             <div style={statusRow}>
               <Text style={statusLabel}>SSL</Text>
@@ -57,11 +57,11 @@ export default function DomainConfigured({
             </Link>
           </Section>
           <Text style={text}>
-            Votre site est maintenant accessible via votre domaine personnalise.
-            La propagation DNS peut prendre jusqu&apos;a 24h dans de rares cas.
+            Votre site est maintenant accessible via votre domaine personnalisé.
+            La propagation DNS peut prendre jusqu&apos;à 24h dans de rares cas.
           </Text>
           <Text style={footer}>
-            &mdash; L&apos;equipe Masamune
+            &mdash; L&apos;équipe Masamune
           </Text>
         </Container>
       </Body>
