@@ -1,23 +1,26 @@
-import { Queue } from "bullmq";
-import IORedis from "ioredis";
-
-const connection = new IORedis({
-  host: process.env.REDIS_HOST || "localhost",
-  port: parseInt(process.env.REDIS_PORT || "6379"),
-  password: process.env.REDIS_PASSWORD,
-  maxRetriesPerRequest: null,
-});
-
-export const jobQueue = new Queue("masamune-jobs", { connection });
+// Serverless-compatible queue stub
+// BullMQ/Redis removed — generation runs inline on Vercel
 
 export async function addJob(
   name: string,
   data: Record<string, unknown>,
-  options?: { priority?: number }
+  _options?: { priority?: number }
 ) {
-  return jobQueue.add(name, data, {
-    attempts: 3,
-    backoff: { type: "exponential", delay: 5000 },
-    ...options,
-  });
+  console.log(`[queue] Job "${name}" received (serverless mode — processing inline)`);
+
+  // Trigger generation inline via internal API call
+  if (name === "generate-site" && data.siteId) {
+    const baseUrl = process.env.SITE_URL || process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
+    fetch(`${baseUrl}/api/generate/${data.siteId}`, {
+      method: "POST",
+      headers: { "x-internal-secret": process.env.JWT_SECRET || "" },
+    }).catch((err) => {
+      console.error(`[queue] Failed to trigger generation:`, err);
+    });
+  }
+
+  return null;
 }

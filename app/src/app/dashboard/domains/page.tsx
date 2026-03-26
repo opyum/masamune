@@ -16,7 +16,7 @@ export default async function DomainsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  let domains: Awaited<ReturnType<typeof prisma.domain.findMany>> = [];
+  let domains: (Awaited<ReturnType<typeof prisma.domain.findMany>>[number] & { site?: { businessName: string; slug: string } })[] = [];
   try {
     domains = await prisma.domain.findMany({
       where: { userId: user.id },
@@ -24,7 +24,7 @@ export default async function DomainsPage() {
         site: { select: { businessName: true, slug: true } },
       },
       orderBy: { domainName: "asc" },
-    });
+    }) as typeof domains;
   } catch {
     // DB not ready - show empty state
   }
@@ -94,7 +94,7 @@ export default async function DomainsPage() {
                       {domain.domainName}
                     </h3>
                     <p className="mt-1 text-sm text-slate-500">
-                      Lié à : {domain.site.businessName} ({domain.site.slug}
+                      Lié à : {domain.site?.businessName} ({domain.site?.slug}
                       .masamune.app)
                     </p>
                   </div>
