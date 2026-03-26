@@ -11,9 +11,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY app/ .
 # Prisma generate
 RUN npx prisma generate
-# Build-time env vars (overridden at runtime)
-ENV NEXT_PUBLIC_SUPABASE_URL=http://placeholder
-ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder
+# Build-time env vars - NEXT_PUBLIC_* are inlined at build time
+ENV NEXT_PUBLIC_SUPABASE_URL=https://yetehiguoymisrsjrvzy.supabase.co
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlldGVoaWd1b3ltaXNyc2pydnp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MDI3OTksImV4cCI6MjA5MDA3ODc5OX0.Kxd31q77C1X2eR4l-fNKA248bcNi2ickjxDwIRDzjhk
 ENV STRIPE_SECRET_KEY=sk_placeholder
 RUN npm run build
 
