@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+// Groq API for site generation (Llama 3.3 70B)
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 const GENERATION_SYSTEM_PROMPT = `Tu es un generateur de sites web professionnel. Tu produis des sites statiques haute qualite en HTML5 + Tailwind CSS pour des TPE/PME francaises. Le site genere doit avoir l'apparence d'un site cree par une agence web, pas un template generique.
 
@@ -189,14 +189,6 @@ Genere un fichier llms.txt au format Markdown qui decrit le site pour les agents
 export async function generateSiteWithGemini(
   briefJson: Record<string, unknown>
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
-    generationConfig: {
-      maxOutputTokens: 32000,
-      temperature: 0.7,
-    },
-  });
-
   const userPrompt = `Genere un site web complet et professionnel pour ce business :
 
 ${JSON.stringify(briefJson, null, 2)}
@@ -212,10 +204,28 @@ Instructions :
 8. Fichier llms.txt decrivant le site en Markdown pour les agents IA
 9. Sitemap.xml et robots.txt`;
 
-  const result = await model.generateContent({
-    contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-    systemInstruction: { role: "user", parts: [{ text: GENERATION_SYSTEM_PROMPT }] },
+  const response = await fetch(GROQ_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [
+        { role: "system", content: GENERATION_SYSTEM_PROMPT },
+        { role: "user", content: userPrompt },
+      ],
+      max_tokens: 16000,
+      temperature: 0.7,
+    }),
   });
 
-  return result.response.text();
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Groq API error: ${response.status} ${error}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0]?.message?.content || "";
 }

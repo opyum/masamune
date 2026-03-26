@@ -1,47 +1,62 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+// Groq API (Llama 3.3 70B) — ultra fast, free tier
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 export async function streamHaikuResponse(
   systemPrompt: string,
   messages: { role: "user" | "assistant"; content: string }[]
 ) {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  // Convert messages to Gemini format
-  const history = messages.slice(0, -1).map((m) => ({
-    role: m.role === "assistant" ? "model" as const : "user" as const,
-    parts: [{ text: m.content }],
-  }));
-
-  const chat = model.startChat({
-    history,
-    systemInstruction: { role: "user" as const, parts: [{ text: systemPrompt }] },
+  const response = await fetch(GROQ_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
+      stream: true,
+      max_tokens: 2048,
+      temperature: 0.7,
+    }),
   });
 
-  const lastMessage = messages[messages.length - 1];
-  const result = await chat.sendMessageStream(lastMessage.content);
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Groq API error: ${response.status} ${error}`);
+  }
 
-  return result;
+  return response;
 }
 
 export async function getHaikuResponse(
   systemPrompt: string,
   messages: { role: "user" | "assistant"; content: string }[]
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  const history = messages.slice(0, -1).map((m) => ({
-    role: m.role === "assistant" ? "model" as const : "user" as const,
-    parts: [{ text: m.content }],
-  }));
-
-  const chat = model.startChat({
-    history,
-    systemInstruction: { role: "user" as const, parts: [{ text: systemPrompt }] },
+  const response = await fetch(GROQ_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
+      max_tokens: 2048,
+      temperature: 0.7,
+    }),
   });
 
-  const lastMessage = messages[messages.length - 1];
-  const result = await chat.sendMessage(lastMessage.content);
-  return result.response.text();
+  if (!response.ok) {
+    throw new Error(`Groq API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0]?.message?.content || "";
 }

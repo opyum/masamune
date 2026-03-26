@@ -64,7 +64,7 @@ export async function POST(
     { role: "user" as const, content: message },
   ];
 
-  // Stream response from Gemini
+  // Stream response from Groq (OpenAI SSE format)
   const stream = await streamHaikuResponse(
     HAIKU_QUALIFYING_SYSTEM_PROMPT,
     aiMessages
@@ -74,13 +74,35 @@ export async function POST(
   let fullResponse = "";
 
   const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
   const readable = new ReadableStream({
     async start(controller) {
-      for await (const chunk of stream.stream) {
-        const text = chunk.text();
-        if (text) {
-          fullResponse += text;
-          controller.enqueue(encoder.encode(text));
+      const reader = stream.body!.getReader();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6).trim();
+          if (data === "[DONE]") continue;
+
+          try {
+            const parsed = JSON.parse(data);
+            const text = parsed.choices?.[0]?.delta?.content || "";
+            if (text) {
+              fullResponse += text;
+              controller.enqueue(encoder.encode(text));
+            }
+          } catch {
+            // Skip malformed SSE chunks
+          }
         }
       }
 
