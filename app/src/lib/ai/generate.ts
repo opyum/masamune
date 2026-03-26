@@ -193,16 +193,17 @@ export async function generateSiteWithGemini(
 
 ${JSON.stringify(briefJson, null, 2)}
 
-Instructions :
-1. Genere TOUS les fichiers avec le format FILE_START: nom.ext / FILE_END: nom.ext
-2. Chaque page HTML doit etre COMPLETE (<!DOCTYPE html> jusqu'a </html>)
-3. Utilise tailwind.config inline pour definir la palette de couleurs et les polices
-4. Le design doit etre UNIQUE et adapte au secteur — pas un template generique
-5. Tout le contenu en francais, realiste, specifique a ce business
-6. Schema.org JSON-LD adapte au type "${(briefJson as Record<string, Record<string, unknown>>).business?.type || 'LocalBusiness'}"
-7. Formulaire de contact fonctionnel
-8. Fichier llms.txt decrivant le site en Markdown pour les agents IA
-9. Sitemap.xml et robots.txt`;
+Instructions IMPORTANTES :
+1. Genere UN SEUL fichier index.html avec le format FILE_START: index.html / FILE_END: index.html
+2. Le fichier doit etre un site one-page COMPLET (<!DOCTYPE html> jusqu'a </html>)
+3. Utilise Tailwind CSS via CDN (<script src="https://cdn.tailwindcss.com"></script>)
+4. Inclus TOUTES les sections dans la meme page : hero, presentation, services, temoignages, horaires, contact, footer
+5. Le design doit etre professionnel et adapte au secteur
+6. Tout le contenu en francais, realiste, specifique a ce business
+7. Formulaire de contact avec validation HTML5
+8. Schema.org JSON-LD dans le head
+9. Meta tags SEO complets (title, description, Open Graph)
+10. SOIS CONCIS — pas de commentaires inutiles dans le code`;
 
   const response = await fetch(GROQ_API_URL, {
     method: "POST",
@@ -216,7 +217,7 @@ Instructions :
         { role: "system", content: GENERATION_SYSTEM_PROMPT },
         { role: "user", content: userPrompt },
       ],
-      max_tokens: 16000,
+      max_tokens: 8000,
       temperature: 0.7,
     }),
   });
