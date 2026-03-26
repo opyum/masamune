@@ -75,12 +75,30 @@ export async function POST(
 
     console.log(`[generate] Site ${site.slug} is now live with ${files.length} files`);
 
-    // 7. TODO: Deploy to Cloudflare Pages (Sprint 1 phase 3)
+    // 7. Deploy to Cloudflare Pages
+    let deployResult = null;
+    try {
+      const deployUrl = new URL(`/api/deploy/${siteId}`, request.url);
+      const deployRes = await fetch(deployUrl.toString(), {
+        method: "POST",
+        headers: { "x-internal-secret": process.env.JWT_SECRET || "" },
+      });
+      deployResult = await deployRes.json();
+      if (!deployRes.ok) {
+        console.warn(`[generate] Deploy warning for ${site.slug}:`, deployResult.error);
+      } else {
+        console.log(`[generate] Site ${site.slug} deployed to Cloudflare: ${deployResult.projectUrl}`);
+      }
+    } catch (deployError: unknown) {
+      const deployMsg = deployError instanceof Error ? deployError.message : "Deploy failed";
+      console.warn(`[generate] Deploy failed for ${site.slug} (non-blocking):`, deployMsg);
+    }
 
     return NextResponse.json({
       success: true,
       filesCount: files.length,
       fileNames: files.map((f) => f.filename),
+      deployment: deployResult,
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
