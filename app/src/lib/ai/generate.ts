@@ -69,22 +69,23 @@ Tu produis un plan JSON structure pour un site web statique professionnel.
 
 Le plan doit inclure :
 - La liste des pages avec leurs sections detaillees
-- Le design (palette, polices adaptees au secteur)
+- Le design (palette en codes HEX, polices adaptees au secteur)
 - La navigation
 - Les meta SEO par page
 - Le header HTML et footer HTML complets en Tailwind CSS
 
-Le header et le footer HTML seront copies a l'identique sur TOUTES les pages du site, donc ils doivent :
-- Utiliser Tailwind CSS classes
-- Inclure la navigation avec des liens vers toutes les pages (href="index.html", "services.html", etc.)
-- Etre complets et autonomes (pas de placeholders)
-- Le header doit inclure un menu mobile hamburger avec JS inline
-- Le footer doit inclure colonnes avec liens, horaires, contact, mentions legales
+REGLES CRITIQUES pour le header_html et footer_html :
+- Utiliser UNIQUEMENT des classes Tailwind CSS standard (bg-white, text-gray-800, etc.) ou des couleurs arbitraires Tailwind avec crochets : bg-[#F7DEB5], text-[#964B00]
+- JAMAIS de noms de variables comme bg-primary_color — toujours les VRAIS codes hex entre crochets
+- Inclure la navigation avec liens vers toutes les pages
+- Le header doit avoir un logo texte, nav desktop, et un bouton hamburger mobile avec JS inline (document.getElementById)
+- Le footer doit avoir 3 colonnes : infos business, horaires, liens utiles
+- Le HTML doit etre beau et professionnel
 
 Regles de design :
-- Polices Google Fonts adaptees au secteur (ex: Restaurant -> Playfair Display + Inter, BTP -> Montserrat + Open Sans)
-- Palette de 3 couleurs (primary, secondary, accent) derivee du secteur et des preferences
-- Navigation claire et coherente
+- Polices Google Fonts adaptees au secteur (Restaurant -> Playfair Display + Inter, BTP -> Montserrat + Open Sans, Boulangerie -> Lora + Nunito)
+- Palette de 3 couleurs HEX (primary, secondary, accent) derivee du secteur
+- Le header doit avoir min-height, espacement genereux, ombres subtiles
 
 Tu dois repondre UNIQUEMENT avec un objet JSON valide, sans markdown, sans backticks, sans texte avant ou apres.`;
 
@@ -139,12 +140,15 @@ IMPORTANT: Reponds UNIQUEMENT avec le JSON, rien d'autre.`;
 
 const PAGE_SYSTEM_PROMPT = `Tu es un generateur de sites web professionnel. Tu produis UNE page HTML complete et autonome pour un site de TPE/PME francaise.
 
-## Architecture technique
+## Architecture technique OBLIGATOIRE
 - HTML5 semantique complet (<!DOCTYPE html> jusqu'a </html>)
-- Tailwind CSS via CDN : <script src="https://cdn.tailwindcss.com"></script>
-- Tailwind config inline pour la palette et les polices custom
-- Google Fonts : les polices specifiees dans le plan
-- Mobile-first responsive
+- Dans le <head>, TOUJOURS inclure ces 3 elements dans cet ordre :
+  1. <script src="https://cdn.tailwindcss.com"></script>
+  2. <script>tailwind.config = { theme: { extend: { colors: { primary: '{primary_color}', secondary: '{secondary_color}', accent: '{accent_color}' }}}}</script>
+  3. <link href="https://fonts.googleapis.com/css2?family={heading_font}&family={body_font}&display=swap" rel="stylesheet">
+- Utilise les classes Tailwind : bg-primary, text-secondary, bg-accent, etc. grace au config inline
+- Utilise aussi les couleurs arbitraires Tailwind : bg-[#hex], text-[#hex] quand necessaire
+- Mobile-first responsive (sm:, md:, lg:)
 - JavaScript vanilla minimal (menu mobile, smooth scroll, validation formulaire)
 - Images lazy loading (sauf hero), width/height explicites
 
@@ -211,14 +215,21 @@ ${pageSpec.sections.map((s) => `  - ${s.type}: ${s.title} — ${s.content_brief}
 - Mots-cles : ${pageKeywords.join(", ")}
 - Meta description du site : ${plan.seo.site_description}
 
-## Instructions
-1. La page doit etre un fichier HTML COMPLET et autonome
-2. Inclure le Tailwind CDN et la config inline avec les couleurs et polices
-3. Inclure les Google Fonts du plan
+## Instructions CRITIQUES
+1. La page DOIT commencer par <!DOCTYPE html> et finir par </html>
+2. Dans le <head>, inclure OBLIGATOIREMENT :
+   - <script src="https://cdn.tailwindcss.com"></script>
+   - <script>tailwind.config = { theme: { extend: { colors: { primary: '${plan.design.primary_color}', secondary: '${plan.design.secondary_color}', accent: '${plan.design.accent_color}' }, fontFamily: { heading: ['${plan.design.heading_font}', 'serif'], body: ['${plan.design.body_font}', 'sans-serif'] }}}}</script>
+   - <link href="https://fonts.googleapis.com/css2?family=${plan.design.heading_font.replace(/ /g, "+")}&family=${plan.design.body_font.replace(/ /g, "+")}&display=swap" rel="stylesheet">
+3. Le BODY doit utiliser class="font-body" et les titres class="font-heading"
 4. Copier le header_html et footer_html EXACTEMENT comme fournis
-5. Inclure les meta tags SEO complets (title, description, Open Graph, Twitter Card)
-6. Inclure Schema.org JSON-LD adapte au business
-7. Format de sortie : FILE_START: ${pageSpec.slug}.html ... FILE_END: ${pageSpec.slug}.html`;
+5. Meta tags SEO complets dans le head (title, description, Open Graph)
+6. Schema.org JSON-LD adapte au business dans le head
+7. Le design doit etre PROFESSIONNEL — sections espacees, couleurs coherentes, hero impactant
+8. Images via placehold.co avec les couleurs du theme
+9. Contenu en FRANCAIS realiste et specifique au business
+
+Format : FILE_START: ${pageSpec.slug}.html ... FILE_END: ${pageSpec.slug}.html`;
 
   return await callGroq(PAGE_SYSTEM_PROMPT, userPrompt, 8000, 0.7);
 }
