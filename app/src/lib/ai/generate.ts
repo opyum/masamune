@@ -1,6 +1,6 @@
-// Groq API for multi-step site generation (Llama 3.3 70B)
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+// Claude Sonnet for high-quality site generation
+const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
+const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
 
 interface SitePlan {
   pages: PageSpec[];
@@ -28,36 +28,37 @@ interface PageSpec {
   sections: { type: string; title: string; content_brief: string }[];
 }
 
-async function callGroq(
+async function callLLM(
   systemPrompt: string,
   userPrompt: string,
   maxTokens: number,
   temperature: number = 0.7
 ): Promise<string> {
-  const response = await fetch(GROQ_API_URL, {
+  const response = await fetch(ANTHROPIC_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      "x-api-key": process.env.ANTHROPIC_API_KEY || "",
+      "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
+      model: ANTHROPIC_MODEL,
       max_tokens: maxTokens,
       temperature,
+      system: systemPrompt,
+      messages: [
+        { role: "user", content: userPrompt },
+      ],
     }),
   });
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`Groq API error: ${response.status} ${error}`);
+    throw new Error(`Anthropic API error: ${response.status} ${error}`);
   }
 
   const data = await response.json();
-  return data.choices[0]?.message?.content || "";
+  return data.content?.[0]?.text || "";
 }
 
 // ---------------------------------------------------------------------------
@@ -123,7 +124,7 @@ Le JSON doit avoir cette structure exacte :
 
 IMPORTANT: Reponds UNIQUEMENT avec le JSON, rien d'autre.`;
 
-  const raw = await callGroq(PLAN_SYSTEM_PROMPT, userPrompt, 4000, 0.7);
+  const raw = await callLLM(PLAN_SYSTEM_PROMPT, userPrompt, 4000, 0.7);
 
   // Extract JSON from response (handle potential markdown wrapping)
   let jsonStr = raw.trim();
@@ -231,7 +232,7 @@ ${pageSpec.sections.map((s) => `  - ${s.type}: ${s.title} — ${s.content_brief}
 
 Format : FILE_START: ${pageSpec.slug}.html ... FILE_END: ${pageSpec.slug}.html`;
 
-  return await callGroq(PAGE_SYSTEM_PROMPT, userPrompt, 8000, 0.7);
+  return await callLLM(PAGE_SYSTEM_PROMPT, userPrompt, 8000, 0.7);
 }
 
 // ---------------------------------------------------------------------------
@@ -298,7 +299,7 @@ ${pageNames.map((p) => `- ${p}`).join("\n")}
 
 Reponds UNIQUEMENT avec les 3 fichiers au format FILE_START/FILE_END.`;
 
-  return await callGroq(SEO_SYSTEM_PROMPT, userPrompt, 2000, 0.7);
+  return await callLLM(SEO_SYSTEM_PROMPT, userPrompt, 2000, 0.7);
 }
 
 // Backward-compatible one-shot generation for the existing /api/generate/[siteId] route
