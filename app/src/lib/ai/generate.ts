@@ -1,159 +1,270 @@
-// Groq API for site generation (Llama 3.3 70B)
+// Groq API for multi-step site generation (Llama 3.3 70B)
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
-const GENERATION_SYSTEM_PROMPT = `Tu es un generateur de sites web professionnel. Tu produis des sites statiques haute qualite en HTML5 + Tailwind CSS pour des TPE/PME francaises. Le site genere doit avoir l'apparence d'un site cree par une agence web, pas un template generique.
+interface SitePlan {
+  pages: PageSpec[];
+  design: {
+    primary_color: string;
+    secondary_color: string;
+    accent_color: string;
+    heading_font: string;
+    body_font: string;
+    style_notes: string;
+  };
+  navigation: { label: string; href: string }[];
+  seo: {
+    site_title: string;
+    site_description: string;
+    keywords_per_page: Record<string, string[]>;
+  };
+  header_html: string;
+  footer_html: string;
+}
+
+interface PageSpec {
+  slug: string;
+  title: string;
+  sections: { type: string; title: string; content_brief: string }[];
+}
+
+async function callGroq(
+  systemPrompt: string,
+  userPrompt: string,
+  maxTokens: number,
+  temperature: number = 0.7
+): Promise<string> {
+  const response = await fetch(GROQ_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      max_tokens: maxTokens,
+      temperature,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Groq API error: ${response.status} ${error}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0]?.message?.content || "";
+}
+
+// ---------------------------------------------------------------------------
+// Step 1: Generate site plan
+// ---------------------------------------------------------------------------
+
+const PLAN_SYSTEM_PROMPT = `Tu es un architecte web expert specialise dans la creation de sites pour TPE/PME francaises.
+Tu produis un plan JSON structure pour un site web statique professionnel.
+
+Le plan doit inclure :
+- La liste des pages avec leurs sections detaillees
+- Le design (palette, polices adaptees au secteur)
+- La navigation
+- Les meta SEO par page
+- Le header HTML et footer HTML complets en Tailwind CSS
+
+Le header et le footer HTML seront copies a l'identique sur TOUTES les pages du site, donc ils doivent :
+- Utiliser Tailwind CSS classes
+- Inclure la navigation avec des liens vers toutes les pages (href="index.html", "services.html", etc.)
+- Etre complets et autonomes (pas de placeholders)
+- Le header doit inclure un menu mobile hamburger avec JS inline
+- Le footer doit inclure colonnes avec liens, horaires, contact, mentions legales
+
+Regles de design :
+- Polices Google Fonts adaptees au secteur (ex: Restaurant -> Playfair Display + Inter, BTP -> Montserrat + Open Sans)
+- Palette de 3 couleurs (primary, secondary, accent) derivee du secteur et des preferences
+- Navigation claire et coherente
+
+Tu dois repondre UNIQUEMENT avec un objet JSON valide, sans markdown, sans backticks, sans texte avant ou apres.`;
+
+export async function generateSitePlan(
+  briefJson: Record<string, unknown>
+): Promise<SitePlan> {
+  const userPrompt = `Genere un plan JSON structure pour ce business :
+
+${JSON.stringify(briefJson, null, 2)}
+
+Le JSON doit avoir cette structure exacte :
+{
+  "pages": [
+    {"slug": "index", "title": "Accueil", "sections": [{"type": "hero", "title": "...", "content_brief": "..."}, {"type": "services", "title": "...", "content_brief": "..."}]},
+    {"slug": "services", "title": "Nos services", "sections": [...]},
+    {"slug": "contact", "title": "Contact", "sections": [...]}
+  ],
+  "design": {
+    "primary_color": "#...",
+    "secondary_color": "#...",
+    "accent_color": "#...",
+    "heading_font": "...",
+    "body_font": "...",
+    "style_notes": "..."
+  },
+  "navigation": [{"label": "Accueil", "href": "index.html"}, ...],
+  "seo": {
+    "site_title": "...",
+    "site_description": "...",
+    "keywords_per_page": {"index": ["mot1", "mot2"], ...}
+  },
+  "header_html": "<header class=\\"...\\">...</header>",
+  "footer_html": "<footer class=\\"...\\">...</footer>"
+}
+
+IMPORTANT: Reponds UNIQUEMENT avec le JSON, rien d'autre.`;
+
+  const raw = await callGroq(PLAN_SYSTEM_PROMPT, userPrompt, 4000, 0.7);
+
+  // Extract JSON from response (handle potential markdown wrapping)
+  let jsonStr = raw.trim();
+  if (jsonStr.startsWith("```")) {
+    jsonStr = jsonStr.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+  }
+
+  return JSON.parse(jsonStr) as SitePlan;
+}
+
+// ---------------------------------------------------------------------------
+// Step 2: Generate a single page
+// ---------------------------------------------------------------------------
+
+const PAGE_SYSTEM_PROMPT = `Tu es un generateur de sites web professionnel. Tu produis UNE page HTML complete et autonome pour un site de TPE/PME francaise.
 
 ## Architecture technique
+- HTML5 semantique complet (<!DOCTYPE html> jusqu'a </html>)
+- Tailwind CSS via CDN : <script src="https://cdn.tailwindcss.com"></script>
+- Tailwind config inline pour la palette et les polices custom
+- Google Fonts : les polices specifiees dans le plan
+- Mobile-first responsive
+- JavaScript vanilla minimal (menu mobile, smooth scroll, validation formulaire)
+- Images lazy loading (sauf hero), width/height explicites
 
-- **HTML5 semantique** : header, nav, main, section, article, aside, footer
-- **Tailwind CSS via CDN** : <script src="https://cdn.tailwindcss.com"></script>
-- **Tailwind config inline** pour la palette et les polices custom :
-  \`\`\`html
-  <script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          primary: '#...', secondary: '#...', accent: '#...'
-        },
-        fontFamily: {
-          heading: ['NomPolice', 'serif'],
-          body: ['NomPolice', 'sans-serif']
-        }
-      }
-    }
-  }
-  </script>
-  \`\`\`
-- **Google Fonts** : 1 police titres + 1 police corps, choisies selon le secteur
-- **Mobile-first** : design pour mobile d'abord, puis md: (768px), puis lg: (1024px)
-- **JavaScript vanilla minimal** : uniquement menu mobile, smooth scroll, formulaire validation
-- **Performance** : images lazy loading (sauf hero), width/height explicites, JS defer
-
-## Format de sortie OBLIGATOIRE
-
-Pour CHAQUE fichier, utilise ce format exact (le parser depend de ce format) :
-
-FILE_START: nom-du-fichier.ext
-(contenu complet du fichier)
-FILE_END: nom-du-fichier.ext
-
-Fichiers a generer obligatoirement :
-1. **index.html** — page d'accueil
-2. **Une page .html par page dans le brief** (services.html, contact.html, etc.)
-3. **sitemap.xml** — toutes les pages, priorites correctes
-4. **robots.txt** — Allow all, reference sitemap
-5. **llms.txt** — fichier Markdown decrivant le site pour les agents IA (voir section dediee)
-
-## Design — Regles pour un rendu professionnel
-
-### Palette de couleurs
-Derive la palette de style.colors_hint et du secteur. Definis 3 couleurs minimum :
-- **primary** : couleur dominante (boutons, liens, accents)
-- **secondary** : couleur complementaire (fonds de section alternants)
-- **accent** : couleur de mise en avant (badges, hover, CTA urgents)
-- Utilise des variantes claires (bg-primary/10, bg-secondary/5) pour les fonds de sections
-- Alterne les fonds de sections (blanc / teinte legere) pour rythmer la page
-
-### Typographie
-Choisis des Google Fonts adaptees au secteur :
-- Restaurant gastro : Playfair Display + Inter
-- Artisan/BTP : Montserrat + Open Sans
-- Beaute/Coiffure : Cormorant Garamond + Poppins
-- Freelance/Tech : Plus Jakarta Sans + Inter
-- Medical : Source Sans Pro + IBM Plex Sans
-- Commerce : DM Sans + Nunito
-- Boulangerie : Lora + Nunito
-
-### Mise en page
+## Design professionnel
 - Sections bien espacees : py-16 md:py-24 minimum
 - Container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8
 - Grilles adaptatives : grid-cols-1 md:grid-cols-2 lg:grid-cols-3
-- CTA visibles et contrastes, avec hover transitions
-- Hero section impactante : grande hauteur (min-h-[70vh]), image ou gradient de fond, titre accrocheur
-- Footer complet : colonnes avec liens, horaires, contact, mentions legales, reseaux sociaux
-
-### Composants visuels (pour differencier du generique)
-- Utilise des icones SVG inline pour les services/features (simples, 24x24)
+- CTA visibles et contrastes avec hover transitions
 - Cartes avec ombre douce : shadow-md hover:shadow-lg transition-shadow
-- Boutons avec hover : transition-colors duration-200
-- Separateurs decoratifs entre sections (bordure accent, forme SVG, ou espacement)
+- Icones SVG inline pour les services/features
 - Temoignages dans des cartes stylisees avec guillemets decoratifs
-- Stats/chiffres cles en grande taille avec compteurs visuels
 
 ## Images placeholder
+Utilise https://placehold.co/ avec dimensions realistes et couleurs du theme.
 
-Utilise https://placehold.co/ avec des dimensions realistes :
-- Hero : 1920x800 (paysage large)
-- Cards services : 600x400
-- Galerie : 800x600
-- Temoignages avatar : 80x80 (arrondi)
-- Logo : 200x60
-- OG Image : 1200x630
+## Contenu
+- Textes en FRANCAIS, realistes et specifiques au business
+- JAMAIS de Lorem Ipsum
+- Integre les informations du brief : horaires, telephone, adresse, services
+- CTA adaptes au secteur
 
-Format : \`https://placehold.co/600x400/COULEUR_FOND/COULEUR_TEXTE?text=Description+courte\`
-Adapte les couleurs de fond au theme du site.
-Alt text descriptif et optimise SEO sur chaque image.
+## Format de sortie OBLIGATOIRE
+FILE_START: {slug}.html
+(contenu HTML complet)
+FILE_END: {slug}.html`;
 
-## SEO on-page (OBLIGATOIRE sur chaque page)
+export async function generatePage(
+  briefJson: Record<string, unknown>,
+  plan: SitePlan,
+  pageSpec: PageSpec
+): Promise<string> {
+  const pageKeywords = plan.seo.keywords_per_page[pageSpec.slug] || [];
 
-1. **\`<title>\`** unique : max 60 chars, format "[Mot-cle] a [Ville] | [Nom]"
-2. **\`<meta name="description">\`** unique : 150-160 chars, mot-cle + localite + benefice
-3. **\`<meta name="robots" content="index, follow">\`**
-4. **\`<link rel="canonical">\`** avec URL absolue
-5. **Open Graph complet** : og:title, og:description, og:image (1200x630), og:url, og:type, og:locale, og:site_name
-6. **Twitter Card** : twitter:card summary_large_image, twitter:title, twitter:description, twitter:image
-7. **Schema.org JSON-LD** dans le \`<head>\` (voir section dediee)
-8. **Balises Hn hierarchiques** : un seul H1 par page, puis H2, H3
-9. **Alt text SEO** : descriptif + mot-cle sur chaque image
-10. **Liens internes** entre les pages du site
+  const userPrompt = `Genere la page "${pageSpec.title}" (${pageSpec.slug}.html) pour ce site.
 
-## Schema.org JSON-LD
+## Brief client
+${JSON.stringify(briefJson, null, 2)}
 
-Genere dans le \`<head>\` de chaque page :
+## Design du site
+- Couleur principale : ${plan.design.primary_color}
+- Couleur secondaire : ${plan.design.secondary_color}
+- Couleur accent : ${plan.design.accent_color}
+- Police titres : ${plan.design.heading_font}
+- Police corps : ${plan.design.body_font}
+- Notes de style : ${plan.design.style_notes}
 
-### Page d'accueil — Type principal adapte au business :
-- Restaurant/Bar/Cafe -> Restaurant (avec servesCuisine, acceptsReservations, menu)
-- Boulangerie/Patisserie -> Bakery
-- Plombier -> Plumber (avec areaServed)
-- Electricien -> Electrician (avec areaServed)
-- Artisan BTP -> HomeAndConstructionBusiness
-- Coiffeur -> HairSalon (avec priceRange)
-- Beaute -> BeautySalon
-- Freelance/Consultant -> ProfessionalService (avec knowsAbout)
-- Commerce -> Store (avec paymentAccepted)
-- Medical -> MedicalBusiness ou Physician
-- Generique -> LocalBusiness
+## Navigation du site
+${JSON.stringify(plan.navigation)}
 
-Proprietes obligatoires : @context, @type, name, description, url, telephone, email, address (avec addressLocality, postalCode, addressCountry:"FR"), openingHoursSpecification, image.
+## Header HTML (a copier EXACTEMENT)
+${plan.header_html}
 
-### Page d'accueil — WebSite schema additionnel
-### Pages secondaires — BreadcrumbList schema
+## Footer HTML (a copier EXACTEMENT)
+${plan.footer_html}
 
-## Formulaire de contact
+## Page a generer
+- Slug : ${pageSpec.slug}
+- Titre : ${pageSpec.title}
+- Sections :
+${pageSpec.sections.map((s) => `  - ${s.type}: ${s.title} — ${s.content_brief}`).join("\n")}
 
-Genere un formulaire fonctionnel avec :
-- Champs : nom, email, telephone (optionnel), message
-- Champs supplementaires adaptes au secteur (type de travaux pour artisan, date souhaitee pour reservation, etc.)
-- Validation HTML5 (required, type="email", type="tel")
-- Design soigne avec labels, focus states, et bouton CTA visible
-- Action : \`action="https://formspree.io/f/{email}" method="POST"\` ou \`action="mailto:{email}"\` si pas d'email Formspree
-- Message de confirmation affiche en JS apres soumission
+## SEO de cette page
+- Titre du site : ${plan.seo.site_title}
+- Mots-cles : ${pageKeywords.join(", ")}
+- Meta description du site : ${plan.seo.site_description}
 
-## Contenu redige
+## Instructions
+1. La page doit etre un fichier HTML COMPLET et autonome
+2. Inclure le Tailwind CDN et la config inline avec les couleurs et polices
+3. Inclure les Google Fonts du plan
+4. Copier le header_html et footer_html EXACTEMENT comme fournis
+5. Inclure les meta tags SEO complets (title, description, Open Graph, Twitter Card)
+6. Inclure Schema.org JSON-LD adapte au business
+7. Format de sortie : FILE_START: ${pageSpec.slug}.html ... FILE_END: ${pageSpec.slug}.html`;
 
-- Textes en FRANCAIS, adaptes au ton du brief (style.tone et style.personality)
-- Contenu REALISTE et SPECIFIQUE au business — PAS de Lorem Ipsum, PAS de texte generique
-- Integre les informations du brief : horaires, telephone, adresse, services, description
-- CTA adaptes au secteur : "Reserver une table", "Demander un devis gratuit", "Prendre rendez-vous"
-- Temoignages clients fictifs mais realistes (prenoms francais, avis courts et credibles)
-- Si unique_selling_point est fourni, le mettre en avant dans le hero et la section presentation
+  return await callGroq(PAGE_SYSTEM_PROMPT, userPrompt, 8000, 0.7);
+}
 
-## llms.txt (nouveau standard)
+// ---------------------------------------------------------------------------
+// Step 3: Generate SEO files
+// ---------------------------------------------------------------------------
 
-Genere un fichier llms.txt au format Markdown qui decrit le site pour les agents IA :
+const SEO_SYSTEM_PROMPT = `Tu generes les fichiers SEO techniques pour un site web statique.
+Tu dois produire exactement 3 fichiers : sitemap.xml, robots.txt, et llms.txt.
 
+Format de sortie OBLIGATOIRE pour CHAQUE fichier :
+FILE_START: nom-du-fichier.ext
+(contenu complet)
+FILE_END: nom-du-fichier.ext`;
+
+export async function generateSEOFiles(
+  briefJson: Record<string, unknown>,
+  plan: SitePlan,
+  pageNames: string[]
+): Promise<string> {
+  const userPrompt = `Genere les fichiers SEO pour ce site :
+
+## Business
+${JSON.stringify(briefJson, null, 2)}
+
+## Pages du site
+${pageNames.map((p) => `- ${p}`).join("\n")}
+
+## SEO info
+- Titre : ${plan.seo.site_title}
+- Description : ${plan.seo.site_description}
+
+## Fichiers a generer
+
+### 1. sitemap.xml
+- Toutes les pages avec priorites correctes (index = 1.0, autres = 0.8)
+- URL de base : https://example.com/ (sera remplacee plus tard)
+- lastmod : date d'aujourd'hui
+- changefreq : monthly
+
+### 2. robots.txt
+- Allow all
+- Reference le sitemap.xml
+
+### 3. llms.txt (format Markdown pour les agents IA)
 \`\`\`markdown
 # {Nom du business}
 
@@ -167,66 +278,24 @@ Genere un fichier llms.txt au format Markdown qui decrit le site pour les agents
 
 ## Pages du site
 - [Accueil](index.html) : {description page}
-- [Services](services.html) : {description page}
-- [Contact](contact.html) : {description page}
+- etc.
 
 ## Services proposes
 - {Service 1}
 - {Service 2}
 \`\`\`
 
-## Contraintes absolues
+Reponds UNIQUEMENT avec les 3 fichiers au format FILE_START/FILE_END.`;
 
-- JAMAIS de code cote serveur (pas de PHP, Node, Python)
-- JAMAIS de Lorem Ipsum ou de texte placeholder generique
-- Le site DOIT fonctionner en ouvrant index.html dans un navigateur
-- Tout le CSS via Tailwind classes (pas de <style> sauf tailwind.config)
-- Code propre, indente, lisible
-- Navigation identique sur toutes les pages (header + footer)
-- Chaque page est un fichier HTML COMPLET et autonome
-`;
+  return await callGroq(SEO_SYSTEM_PROMPT, userPrompt, 2000, 0.7);
+}
 
+// Backward-compatible one-shot generation for the existing /api/generate/[siteId] route
 export async function generateSiteWithGemini(
   briefJson: Record<string, unknown>
 ): Promise<string> {
-  const userPrompt = `Genere un site web complet et professionnel pour ce business :
-
-${JSON.stringify(briefJson, null, 2)}
-
-Instructions IMPORTANTES :
-1. Genere UN SEUL fichier index.html avec le format FILE_START: index.html / FILE_END: index.html
-2. Le fichier doit etre un site one-page COMPLET (<!DOCTYPE html> jusqu'a </html>)
-3. Utilise Tailwind CSS via CDN (<script src="https://cdn.tailwindcss.com"></script>)
-4. Inclus TOUTES les sections dans la meme page : hero, presentation, services, temoignages, horaires, contact, footer
-5. Le design doit etre professionnel et adapte au secteur
-6. Tout le contenu en francais, realiste, specifique a ce business
-7. Formulaire de contact avec validation HTML5
-8. Schema.org JSON-LD dans le head
-9. Meta tags SEO complets (title, description, Open Graph)
-10. SOIS CONCIS — pas de commentaires inutiles dans le code`;
-
-  const response = await fetch(GROQ_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages: [
-        { role: "system", content: GENERATION_SYSTEM_PROMPT },
-        { role: "user", content: userPrompt },
-      ],
-      max_tokens: 8000,
-      temperature: 0.7,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Groq API error: ${response.status} ${error}`);
-  }
-
-  const data = await response.json();
-  return data.choices[0]?.message?.content || "";
+  // Generate plan first, then generate index page as a minimal fallback
+  const plan = await generateSitePlan(briefJson);
+  const indexPage = plan.pages.find((p) => p.slug === "index") || plan.pages[0];
+  return await generatePage(briefJson, plan, indexPage);
 }

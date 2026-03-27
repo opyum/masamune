@@ -25,6 +25,7 @@ export default function ChatInterface({
   const [isStreaming, setIsStreaming] = useState(false);
   const [isComplete, setIsComplete] = useState(briefExtracted);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStep, setGenerationStep] = useState<string>("");
   const [generationDone, setGenerationDone] = useState(false);
   const [previewSlug, setPreviewSlug] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -43,25 +44,43 @@ export default function ChatInterface({
 
   async function triggerGeneration() {
     setIsGenerating(true);
+
     try {
-      const res = await fetch(`/api/generate/${siteId}`, {
-        method: "POST",
-        headers: { "x-internal-secret": "client-trigger" },
-      });
-      if (res.ok) {
-        await res.json();
-        setGenerationDone(true);
-        // Extract slug from the site for preview
-        const siteRes = await fetch(`/api/sites/${siteId}`);
-        if (siteRes.ok) {
-          const site = await siteRes.json();
-          setPreviewSlug(site.slug);
-        }
-      } else {
-        console.error("Generation failed:", await res.text());
+      // Step 1: Plan
+      setGenerationStep("Planification du site...");
+      const planRes = await fetch(`/api/generate/${siteId}/plan`, { method: "POST" });
+      if (!planRes.ok) throw new Error("Echec de la planification");
+      const { plan } = await planRes.json();
+
+      // Step 2: Pages (sequential)
+      for (let i = 0; i < plan.pages.length; i++) {
+        const page = plan.pages[i];
+        setGenerationStep(
+          `Creation de "${page.title}" (${i + 1}/${plan.pages.length})...`
+        );
+
+        const pageRes = await fetch(`/api/generate/${siteId}/page`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pageSlug: page.slug, pageSpec: page }),
+        });
+        if (!pageRes.ok) console.warn(`Page ${page.slug} failed`);
+      }
+
+      // Step 3: SEO files
+      setGenerationStep("Optimisation SEO...");
+      await fetch(`/api/generate/${siteId}/seo`, { method: "POST" });
+
+      // Done
+      setGenerationDone(true);
+      const siteRes = await fetch(`/api/sites/${siteId}`);
+      if (siteRes.ok) {
+        const site = await siteRes.json();
+        setPreviewSlug(site.slug);
       }
     } catch (err) {
       console.error("Generation error:", err);
+      setGenerationStep("Erreur lors de la generation. Reessayez.");
     } finally {
       setIsGenerating(false);
     }
@@ -171,10 +190,10 @@ export default function ChatInterface({
             <>
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600 mx-auto" />
               <p className="text-green-800 font-medium mt-2">
-                Génération de votre site en cours...
+                {generationStep || "Génération de votre site en cours..."}
               </p>
               <p className="text-green-600 text-sm mt-1">
-                Cela prend environ 30 secondes.
+                Chaque étape prend quelques secondes.
               </p>
             </>
           ) : (
