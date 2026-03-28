@@ -44,34 +44,12 @@ export default function ChatInterface({
 
   async function triggerGeneration() {
     setIsGenerating(true);
+    setGenerationStep("Création de votre site par notre IA...");
 
     try {
-      // Step 1: Plan
-      setGenerationStep("Planification du site...");
-      const planRes = await fetch(`/api/generate/${siteId}/plan`, { method: "POST" });
-      if (!planRes.ok) throw new Error("Echec de la planification");
-      const { plan } = await planRes.json();
+      const res = await fetch(`/api/generate/${siteId}`, { method: "POST" });
+      if (!res.ok) throw new Error("Génération échouée");
 
-      // Step 2: Pages (sequential)
-      for (let i = 0; i < plan.pages.length; i++) {
-        const page = plan.pages[i];
-        setGenerationStep(
-          `Creation de "${page.title}" (${i + 1}/${plan.pages.length})...`
-        );
-
-        const pageRes = await fetch(`/api/generate/${siteId}/page`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pageSlug: page.slug, pageSpec: page }),
-        });
-        if (!pageRes.ok) console.warn(`Page ${page.slug} failed`);
-      }
-
-      // Step 3: SEO files
-      setGenerationStep("Optimisation SEO...");
-      await fetch(`/api/generate/${siteId}/seo`, { method: "POST" });
-
-      // Done
       setGenerationDone(true);
       const siteRes = await fetch(`/api/sites/${siteId}`);
       if (siteRes.ok) {
@@ -80,7 +58,7 @@ export default function ChatInterface({
       }
     } catch (err) {
       console.error("Generation error:", err);
-      setGenerationStep("Erreur lors de la generation. Reessayez.");
+      setGenerationStep("Erreur lors de la génération. Réessayez.");
     } finally {
       setIsGenerating(false);
     }
@@ -193,7 +171,7 @@ export default function ChatInterface({
                 {generationStep || "Génération de votre site en cours..."}
               </p>
               <p className="text-green-600 text-sm mt-1">
-                Chaque étape prend quelques secondes.
+                Cela peut prendre jusqu&apos;à une minute.
               </p>
             </>
           ) : (
